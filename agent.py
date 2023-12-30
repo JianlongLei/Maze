@@ -40,34 +40,34 @@ class Agent:
         else:
             return np.random.choice(self.env.actionList(state))
 
-    def nextState(self, state, visited):
-        all_actions = self.env.actionList(state)
-        all_states = [self.env.doAction(state, action) for action in all_actions]
-        available_states = []
-        available_actions = []
-        for i, x in enumerate(all_states):
-            if x not in visited:
-                available_states.append(x)
-                available_actions.append(all_actions[i])
-        available_states = np.array(available_states)
-        max_value_states = np.array([np.max(self.q_value[i]) for i in available_states])
-        if len(available_states) == 0:
-            return state, 0
-
-        max_index = np.argmax(max_value_states)
-        max_states = available_states[max_index]
-        if len(available_actions) == 1:
-            return max_states, all_actions[0]
-
-        r = random.random()
-        if r >= self.eps:
-            return max_states, all_actions[max_index]
-        else:
-            if len(available_states) > 1:
-                index = random.randint(0, len(available_states) - 1)
-            else:
-                index = 0
-            return available_states[index], available_actions[index]
+    # def nextState(self, state, visited):
+    #     all_actions = self.env.actionList(state)
+    #     all_states = [self.env.doAction(state, action) for action in all_actions]
+    #     available_states = []
+    #     available_actions = []
+    #     for i, x in enumerate(all_states):
+    #         if x not in visited:
+    #             available_states.append(x)
+    #             available_actions.append(all_actions[i])
+    #     available_states = np.array(available_states)
+    #     max_value_states = np.array([np.max(self.q_value[i]) for i in available_states])
+    #     if len(available_states) == 0:
+    #         return state, 0
+    #
+    #     max_index = np.argmax(max_value_states)
+    #     max_states = available_states[max_index]
+    #     if len(available_actions) == 1:
+    #         return max_states, all_actions[0]
+    #
+    #     r = random.random()
+    #     if r >= self.eps:
+    #         return max_states, all_actions[max_index]
+    #     else:
+    #         if len(available_states) > 1:
+    #             index = random.randint(0, len(available_states) - 1)
+    #         else:
+    #             index = 0
+    #         return available_states[index], available_actions[index]
 
     def allQValues(self, state):
         return self.q_value[state][self.env.actions[state]]
@@ -79,30 +79,19 @@ class Agent:
         q_x_a = self.q_value[state_from][action]
         reward_x = self.env.reward[state_to]
         max_q_xp = max(self.allQValues(state_to))
-        self.q_value[state_from][action] = q_x_a + self.alp * (reward_x + self.lda * max_q_xp - q_x_a)
+        update_value = self.alp * (reward_x + self.lda * max_q_xp - q_x_a)
+        self.q_value[state_from][action] = q_x_a + update_value
+        return update_value
 
     def learn(self):
         start = time.time()
-        episode = 500
-        a = []
-        diff = []
-        span = 0.0001
+        episode = 2000
+        all_diff = []
+        span = 1e-30
+        turns = 0
+        realEpisode = 0
         for i in range(episode):
-            # x = 0
-            # while not self.isTerminal(x):
-            current = np.copy(self.q_value)
-            a.append(current)
-            x = self.env.start
-            visited = []
-            # while not self.env.isTerminal(x):
-            #     visited.append(x)
-            #     xp, action = self.nextState(x, visited)
-            #     if xp == x:
-            #         break
-            #     self.update_q_value(x, xp, action)
-            #     x = xp
-
-
+            max_diff = -math.inf
             for x in range(self.env.states):
                 if self.env.isTerminal(x):
                     continue
@@ -110,27 +99,22 @@ class Agent:
                     continue
                 action = self.chooseAction(x)
                 xp = self.env.doAction(x, action)
-                self.update_q_value(x, xp, action)
-
-
-            # curr_diff = np.subtract(self.q_value, current)
-            # curr_diff = np.absolute(curr_diff[~np.isnan(curr_diff)])
-            # max_diff = np.max(curr_diff)
-            # diff.append(max_diff)
-
-            # curr_diff = np.subtract(self.q_value[self.env.start], current[self.env.start])
-            # curr_diff = np.absolute(curr_diff[~np.isnan(curr_diff)])
-            # max_diff = np.max(curr_diff)
-            # diff.append(max_diff)
-            # if span > max_diff:
-            #     break
+                diff = self.update_q_value(x, xp, action)
+                diff = abs(diff)
+                if diff > max_diff:
+                    max_diff = diff
+            all_diff.append(max_diff)
+            if span > max_diff:
+                turns += 1
+                if turns >= 10:
+                    realEpisode = i
+                    break
         print("total time:", time.time() - start)
-        a = np.array(a)
-        print("all Q values:\n{a}".format(a=a))
-        # print("difference between Q values:\n{diff}".format(diff=np.array(diff)))
-        # plt.plot(a)
-        # plt.show()
-
+        print("total epochs:", realEpisode)
+        print("diff:", all_diff)
+        print("gradient:", np.gradient(all_diff))
+        plt.plot(all_diff)
+        plt.show()
 
     def getResult(self, start_state):
         x = start_state

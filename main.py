@@ -1,140 +1,40 @@
 import numpy as np
 
+from examples import *
 from game import Game
 from gameUI import GameUI
 from tkinter import *
 
-
-def example_1():
-    map = np.array([
-        [0, -1, 0, 0, 0, 0, -1, 1],
-        [0, -1, -1, 0, -1, 0, -1, 0],
-        [0, 0, 0, 0, -1, 0, -1, 0],
-        [-1, 0, -1, -1, -1, 0, -1, 0],
-        [0, 0, -1, 0, 0, 0, -1, 0],
-        [0, -1, -1, -1, -1, -1, -1, 0],
-        [0, 0, 0, 0, -1, 0, 0, 0],
-        [0, 0, -1, 0, 0, 0, -1, 0],
-    ])
-    x_start = 0
-    y_start = 0
-    x_target = 7
-    y_target = 0
-    return map, x_start, y_start, x_target, y_target
-
-
-def example_2():
-    map = np.array([
-        [1, 0, 0, 0],
-        [-1, -1, 0, 0],
-        [0, -1, 0, 0],
-        [0, 0, 0, -1]
-    ])
-    x_start = 0
-    y_start = 2
-    x_target = 0
-    y_target = 0
-    return map, x_start, y_start, x_target, y_target
-
-
-def example_3():
-    map = np.array([[0, 0, 1], [0, 0, 0], [0, 0, 0]])
-    x_start = 0
-    y_start = 2
-    x_target = 2
-    y_target = 0
-    return map, x_start, y_start, x_target, y_target
-
-
-def example_4():
-    map = np.array([[0, 0, 0, 0, 1],
-                    [0, -1, -1, 0, -1],
-                    [0, 0, 0, -1, 0],
-                    [-1, -1, 0, -1, 0],
-                    [0, 0, 0, 0, 0]])
-    x_start = 0
-    y_start = 4
-    x_target = 4
-    y_target = 0
-    return map, x_start, y_start, x_target, y_target
-
-
-def example_5():
-    map = np.array([
-        [1, 0, 1, 1, 0, 0, 0, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0, 1, 0, 1, 1],
-        [1, 0, 0, 1, 1, 1, 1, 1, 0, 0, 1, 1, 0, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 1, 1, 1, 0],
-        [1, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 1, 0, 0, 1, 0, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0],
-        [0, 1, 0, 1, 1, 1, 0, 1, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 0, 1, 0, 1, 1],
-        [1, 1, 0, 0, 0, 1, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 1, 1, 1, 0, 0, 1, 1, 0, 1, 0, 0, 0],
-        [1, 0, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0, 1, 0, 0, 1, 0, 0, 0, 1, 1, 1, 0, 1, 0, 1, 1, 1, 0],
-        [1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 1, 1, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 1],
-        [1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 0, 0, 0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 0, 1],
-        [0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0, 1],
-        [1, 1, 0, 1, 0, 1, 0, 1, 0, 1, 1, 1, 1, 1, 0, 0, 0, 1, 0, 1, 1, 1, 1, 0, 1, 0, 0, 1, 0, 1],
-        [0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 0, 0, 0, 1, 1, 0, 0, 0, 1, 0, 0, 1, 1, 0, 1, 0, 1],
-        [1, 1, 0, 1, 0, 0, 0, 0, 1, 1, 0, 1, 0, 1, 1, 1, 1, 0, 0, 0, 1, 1, 0, 0, 1, 0, 0, 1, 1, 1],
-        [1, 0, 0, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 0, 1, 1, 1, 0, 0, 0, 1, 0],
-        [1, 1, 0, 1, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 1, 0, 1, 1, 1, 0],
-        [0, 1, 0, 1, 0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 0, 1, 1, 0, 1, 1, 1, 1, 0, 1, 0, 0, 1],
-        [1, 1, 1, 1, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1, 0, 0, 1],
-        [1, 0, 1, 0, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0, 1, 0, 1, 1, 1, 0, 1, 1, 0, 0, 1],
-        [0, 0, 1, 1, 1, 0, 0, 1, 1, 0, 0, 1, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 1],
-        [1, 1, 1, 0, 1, 0, 0, 0, 1, 1, 0, 1, 1, 0, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0],
-        [1, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 1, 1, 1, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 1],
-        [1, 1, 1, 0, 0, 1, 1, 1, 0, 1, 1, 1, 0, 0, 1, 1, 0, 1, 1, 1, 1, 0, 1, 1, 1, 1, 0, 0, 0, 1],
-        [1, 0, 1, 0, 0, 1, 0, 1, 0, 0, 0, 1, 0, 1, 0, 1, 1, 0, 0, 0, 0, 1, 1, 0, 0, 1, 0, 1, 1, 1],
-        [1, 0, 1, 0, 1, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 0, 1, 1, 0, 1, 1, 1, 0, 0, 0, 1, 0, 1, 0, 0],
-        [1, 0, 1, 1, 1, 0, 1, 1, 0, 0, 0, 1, 0, 1, 0, 0, 0, 1, 1, 1, 0, 1, 1, 0, 1, 1, 0, 1, 0, 1],
-        [1, 0, 0, 0, 0, 0, 1, 0, 1, 1, 1, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 1, 1, 1],
-        [1, 0, 1, 0, 1, 1, 1, 0, 0, 0, 1, 0, 0, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1, 0, 1, 1, 0, 0, 0, 1],
-        [1, 1, 1, 0, 1, 0, 1, 1, 0, 1, 1, 0, 0, 1, 0, 0, 1, 1, 1, 0, 1, 1, 0, 0, 0, 1, 1, 1, 0, 1],
-        [0, 1, 0, 0, 1, 0, 0, 0, 0, 1, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1],
-        [1, 1, 1, 0, 1, 1, 0, 1, 1, 1, 0, 1, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1],
-        [1, 0, 1, 0, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1],
-    ])
-    map = -(-map + 1)
-    map[29][29] = 1
-    print(np.shape(map))
-
-    x_start = 0
-    y_start = 0
-    x_target = 29
-    y_target = 29
-    return map, x_start, y_start, x_target, y_target
-
-
-def example_6():
-    map = np.array([
-        [0, 0, 0, 0, 1],
-        [0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0],
-    ])
-    x_start = 0
-    y_start = 4
-    x_target = 4
-    y_target = 0
-    return map, x_start, y_start, x_target, y_target
-
-
 if __name__ == '__main__':
     # 8*8 normal maze
-    # map, x_start, y_start, x_target, y_target = example_1()
+    map, x_start, y_start, x_target, y_target = example_1()
     # 4*4 normal maze
     # map, x_start, y_start, x_target, y_target = example_2()
     # 3*3 simple maze
     # map, x_start, y_start, x_target, y_target = example_3()
     # 5*5 normal maze
     # map, x_start, y_start, x_target, y_target = example_4()
-    # 30*30 normal maze
-    map, x_start, y_start, x_target, y_target = example_5()
     # 5*5 simple maze
     # map, x_start, y_start, x_target, y_target = example_6()
 
     game = Game(map, (x_start, y_start), (x_target, y_target))
     window = Tk()
-    # gameUI = GameUI(window, game, 50, 0.2)
-    gameUI = GameUI(window, game, 25, 0.2, False)
+    gameUI = GameUI(window, game, itemSize=50, speed=0.2)
     gameUI.drawMap()
     window.mainloop()
+
+    # 30*30 big maze
+    # map, x_start, y_start, x_target, y_target = example_5()
+    # game = Game(map, (x_start, y_start), (x_target, y_target))
+    # window = Tk()
+    # gameUI = GameUI(window, game, itemSize=25, speed=0.1, border=False)
+    # gameUI.drawMap()
+    # window.mainloop()
+
+    # 60*60 big maze
+    # map, x_start, y_start, x_target, y_target = example_7()
+    # game = Game(map, (x_start, y_start), (x_target, y_target))
+    # window = Tk()
+    # gameUI = GameUI(window, game, itemSize=10, speed=0.1, border=False)
+    # gameUI.drawMap()
+    # window.mainloop()
