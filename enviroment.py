@@ -24,18 +24,21 @@ class Environment:
                 self.reward.append(item)
         self.start = self.axisToState(start_position)
         self.end = self.axisToState(end_position)
-        for i in range(self.states):
+        for s in range(self.states):
             item_action = np.array([True] * ACTION_SIZE)
             # on the left side, no left action
-            if i % width == 0:
+            if s % width == 0:
                 item_action[ACTION_LEFT] = False
-            if i // width == height - 1:
+            if s // width == height - 1:
                 item_action[ACTION_DOWN] = False
-            if i % width == width - 1:
+            if s % width == width - 1:
                 item_action[ACTION_RIGHT] = False
-            if i // width == 0:
+            if s // width == 0:
                 item_action[ACTION_TOP] = False
             self.actions.append(item_action)
+            for action in self.actionList(s):
+                if self.reward[self.doAction(s, action)] < 0:
+                    self.actions[s][action] = False
 
     def doAction(self, state_from, action):
         if not self.actions[state_from][action]:
@@ -58,6 +61,9 @@ class Environment:
 
     def isTerminal(self, state):
         return state == self.end
+
+    def isValid(self, state):
+        return self.reward[state] >= 0
 
     def axisToState(self, axis):
         if axis[1] < self.height and axis[0] < self.width:

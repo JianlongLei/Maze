@@ -1,8 +1,5 @@
-import time
-
 from agent import Agent
 from enviroment import Environment
-from tkinter import *
 
 
 class Game:
@@ -14,7 +11,6 @@ class Game:
         self.start_position = start_position
         self.width = self.env.width
         self.height = self.env.height
-
 
     def solve(self):
         self.agent.learn()
