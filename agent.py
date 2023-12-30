@@ -38,7 +38,6 @@ class Agent:
         if r >= self.eps:
             return self.chooseBestAction(state)
         else:
-            print(self.env.stateToAxis(state))
             return np.random.choice(self.env.actionList(state))
 
     def nextState(self, state, visited):
@@ -84,7 +83,7 @@ class Agent:
 
     def learn(self):
         start = time.time()
-        episode = 400
+        episode = 500
         a = []
         diff = []
         span = 0.0001
