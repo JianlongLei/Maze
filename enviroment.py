@@ -1,5 +1,6 @@
-from consts import *
 import numpy as np
+
+from consts import *
 
 
 class Environment:
@@ -13,8 +14,7 @@ class Environment:
     end = 0
 
     def __init__(self, map, start_position, end_position):
-        width = np.shape(map)[1]
-        height = np.shape(map)[0]
+        height, width = np.shape(map)
         self.width = width
         self.height = height
         self.states = np.size(map)

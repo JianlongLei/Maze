@@ -46,7 +46,7 @@ class Maze:
             self.actions.append(item_action)
         self.reward = [0 for _ in range(self.states)]
         self.reward[self.states - 1] = 1
-        self.reward[self.states//2] = 2
+        self.reward[self.states // 2] = 2
 
     def doAction(self, state_from, action):
         if action not in self.actions[state_from]:

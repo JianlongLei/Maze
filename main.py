@@ -1,9 +1,8 @@
-import numpy as np
+from tkinter import *
 
 from examples import *
 from game import Game
 from gameUI import GameUI
-from tkinter import *
 
 if __name__ == '__main__':
     # 8*8 normal maze
