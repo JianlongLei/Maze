@@ -1,6 +1,13 @@
-import numpy as np
+from enum import Enum
 
 from consts import *
+
+
+class Action(Enum):
+    LEFT = 0
+    UP = 1
+    RIGHT = 2
+    DOWN = 3
 
 
 class Environment:
