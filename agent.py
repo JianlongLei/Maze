@@ -131,3 +131,23 @@ class Agent:
             x = xp
         print(results)
         return results
+
+
+class DPQlearning:
+    def __init__(self, environment: Environment, gamma=0.9):
+        self.env = environment
+        self.gamma = gamma
+        # self.epsilon = epsilon
+        # self.alpha = alpha
+        self.q_values = np.zeros((self.env.states, ACTION_SIZE))
+
+
+
+class GreedyQlearning:
+    def __init__(self, environment: Environment, gamma=0.9, epsilon=0.9, alpha=0.9):
+        self.env = environment
+        self.gamma = gamma
+        self.epsilon = epsilon
+        self.alpha = alpha
+
+        self.q_values = np.zeros((self.env.states, ACTION_SIZE))
