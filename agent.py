@@ -13,17 +13,18 @@ class Agent:
     # Q value
     q_value = []
 
-    def __init__(self, environment: Environment,
-                 # lambda, discount parameter
-                 lda=0.9,
-                 # epsilon, exploration & exploitation balancing parameter. Epsilon-Greedy
-                 eps=0.9,
-                 # alpha, learning rate
-                 alp=0.9):
+    def __init__(self, environment: Environment, gamma=0.9, epsilon=0.9, alpha=0.9):
+        """
+        Initialization function.
+        :param environment:
+        :param gamma: γ, discount parameter.
+        :param epsilon: ε, exploration & exploitation balancing parameter of ε-greedy.
+        :param alpha: α, learning rate.
+        """
 
-        self.lda = lda
-        self.eps = eps
-        self.alp = alp
+        self.gamma = gamma
+        self.epsilon = epsilon
+        self.alpha = alpha
         self.env = environment
         self.q_value = np.empty(shape=(environment.states, ACTION_SIZE))
         self.q_value.fill(-math.inf)
@@ -35,7 +36,7 @@ class Agent:
 
     def chooseAction(self, state):
         r = random.random()
-        if r >= self.eps:
+        if r >= self.epsilon:
             return self.chooseBestAction(state)
         else:
             return np.random.choice(self.env.actionList(state))
@@ -79,7 +80,7 @@ class Agent:
         q_x_a = self.q_value[state_from][action]
         reward_x = self.env.reward[state_to]
         max_q_xp = max(self.allQValues(state_to))
-        update_value = self.alp * (reward_x + self.lda * max_q_xp - q_x_a)
+        update_value = self.alpha * (reward_x + self.gamma * max_q_xp - q_x_a)
         self.q_value[state_from][action] = q_x_a + update_value
         return update_value
 
@@ -93,9 +94,7 @@ class Agent:
         for i in range(episode):
             max_diff = -math.inf
             for x in range(self.env.states):
-                if self.env.isTerminal(x):
-                    continue
-                if not self.env.isValid(x):
+                if self.env.isTerminal(x) or not self.env.isValid(x):
                     continue
                 action = self.chooseAction(x)
                 xp = self.env.doAction(x, action)
@@ -115,6 +114,8 @@ class Agent:
         print("gradient:", np.gradient(all_diff))
         plt.plot(all_diff)
         plt.show()
+
+        print("q-value:", self.q_value)
 
     def getResult(self, start_state):
         x = start_state
