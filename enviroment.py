@@ -26,13 +26,6 @@ class Environment:
         height, width = np.shape(map)
         self.width = width
         self.height = height
-
-        state_size = np.size(map)
-        self.legal_states = []
-        for x in range(state_size):
-            if not self.isTerminal(x) and self.isValid(x):
-                self.legal_states.append(x)
-
         self.states = np.size(map)
         self.reward = []
         for rows in map:
@@ -40,6 +33,13 @@ class Environment:
                 self.reward.append(item)
         self.start = self.axisToState(start_position)
         self.end = self.axisToState(end_position)
+
+        state_size = np.size(map)
+        self.legal_states = []
+        for x in range(state_size):
+            if not self.isTerminal(x) and self.isValid(x):
+                self.legal_states.append(x)
+
         for s in range(self.states):
             # item_action = np.array([True] * ACTION_SIZE)
             # on the left side, no left action

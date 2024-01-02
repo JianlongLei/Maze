@@ -132,7 +132,7 @@ class Agent:
             #               a=ACTION_NAME[bestAction],
             #               p=self.env.stateToAxis(xp)))
             x = xp
-        print(results)
+        print("res:", results)
         return results
 
 
@@ -148,7 +148,7 @@ class DPQlearning:
         new_q_values = np.copy(self.q_values)  # deep copy
 
         for state in self.env.legal_states:
-            for action in Action:
+            for action in self.env.actions[state]:
                 new_q_values[state][action.value] = self.calculate_q_value(state, action)
         self.q_values = new_q_values
 
@@ -167,6 +167,19 @@ class DPQlearning:
     def train(self, num_iterations=100):
         for _ in range(num_iterations):
             self.update_q_values()
+
+    def getResult(self, start_state):
+        x = start_state
+        results = []
+        while not self.env.isTerminal(x):
+            best_value = np.argmax(self.q_values[x])
+            best_action = Action(best_value)
+
+            results.append(x)
+            xp = self.env.doAction(x, best_action)
+            x = xp
+        print("res:", results)
+        return results
 
 
 class GreedyQlearning:
