@@ -16,12 +16,12 @@ class Agent:
         self.alpha = alpha
         self.q_values = np.zeros((self.env.states, len(Action)))
 
-    def update_q_values(self):
+    def update(self):
         pass
 
-    def train(self, num_iterations=100):
-        for _ in range(num_iterations):
-            self.update_q_values()
+    def train(self, episode=100):
+        for _ in range(episode):
+            self.update()
 
     def get_result(self, start_state):
         x = start_state
@@ -51,13 +51,13 @@ class GreedyQlearning(Agent):
         super().__init__(environment, gamma, alpha)
 
         self.epsilon = epsilon
-        self.q_value = np.empty(shape=(environment.states, ACTION_SIZE))
-        self.q_value.fill(-math.inf)
+        self.q_values = np.empty(shape=(environment.states, ACTION_SIZE))
+        self.q_values.fill(-math.inf)
         for state in range(environment.states):
             # value = 1 if self.env.isTerminal(state) else 0
             for action in environment.actionList(state):
                 # self.q_value[state][action] = value
-                self.q_value[state][action.value] = 0
+                self.q_values[state][action.value] = 0
 
     def chooseAction(self, state):
         r = random.random()
@@ -66,53 +66,24 @@ class GreedyQlearning(Agent):
         else:
             return np.random.choice(self.env.actionList(state))
 
-    # def nextState(self, state, visited):
-    #     all_actions = self.env.actionList(state)
-    #     all_states = [self.env.doAction(state, action) for action in all_actions]
-    #     available_states = []
-    #     available_actions = []
-    #     for i, x in enumerate(all_states):
-    #         if x not in visited:
-    #             available_states.append(x)
-    #             available_actions.append(all_actions[i])
-    #     available_states = np.array(available_states)
-    #     max_value_states = np.array([np.max(self.q_value[i]) for i in available_states])
-    #     if len(available_states) == 0:
-    #         return state, 0
-    #
-    #     max_index = np.argmax(max_value_states)
-    #     max_states = available_states[max_index]
-    #     if len(available_actions) == 1:
-    #         return max_states, all_actions[0]
-    #
-    #     r = random.random()
-    #     if r >= self.eps:
-    #         return max_states, all_actions[max_index]
-    #     else:
-    #         if len(available_states) > 1:
-    #             index = random.randint(0, len(available_states) - 1)
-    #         else:
-    #             index = 0
-    #         return available_states[index], available_actions[index]
-
     def allQValues(self, state):
-        return self.q_value[state]
+        return self.q_values[state]
         # return self.q_value[state][self.env.actions[state]]
 
     def chooseBestAction(self, state):
-        value = np.argmax(self.q_value[state])
+        value = np.argmax(self.q_values[state])
         return Action(value)
 
     def update_q_value(self, state_from, state_to, action: Action):
         val = action.value
-        q_x_a = self.q_value[state_from][val]
+        q_x_a = self.q_values[state_from][val]
         reward_x = self.env.reward[state_to]
         max_q_xp = max(self.allQValues(state_to))
         update_value = self.alpha * (reward_x + self.gamma * max_q_xp - q_x_a)
-        self.q_value[state_from][val] = q_x_a + update_value
+        self.q_values[state_from][val] = q_x_a + update_value
         return update_value
 
-    def learn(self):
+    def train(self, episode=100):
         start = time.time()
         episode = 2000
         all_diff = []
@@ -143,26 +114,12 @@ class GreedyQlearning(Agent):
         plt.plot(all_diff)
         plt.show()
 
-        print("q-value:", self.q_value)
-
-    def get_result(self, start_state):
-        x = start_state
-        results = []
-        while not self.env.isTerminal(x):
-            bestAction = self.chooseBestAction(x)
-            results.append(x)
-            xp = self.env.doAction(x, bestAction)
-            # print('{x} go {a} to {p}'
-            #       .format(x=self.env.stateToAxis(x),
-            #               a=ACTION_NAME[bestAction],
-            #               p=self.env.stateToAxis(xp)))
-            x = xp
-        print("res:", results)
-        return results
+        print("q-value:", self.q_values)
 
 
 class DPQlearning(Agent):
-    def update_q_values(self):
+    def update(self):
+        # update q value
         new_q_values = np.copy(self.q_values)  # deep copy
 
         for state in self.env.legal_states:
@@ -171,7 +128,6 @@ class DPQlearning(Agent):
         self.q_values = new_q_values
 
     def calculate_q_value(self, cur_state, action: Action):
-        # q_value = 0
         next_state = self.env.doAction(cur_state, action)
         q_value = self.q_values[cur_state][action.value]
         reward = self.env.reward[next_state]

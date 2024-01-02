@@ -14,7 +14,7 @@ class Game:
         self.height = self.env.height
 
     def solve(self):
-        self.agent.learn()
+        self.agent.train()
         self.agent2.train()
         result = self.agent.get_result(self.env.axisToState(self.start_position))
         res = self.agent2.get_result(self.env.axisToState(self.start_position))
