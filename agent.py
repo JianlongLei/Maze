@@ -5,7 +5,6 @@ import time
 import matplotlib.pyplot as plt
 import numpy as np
 
-from consts import ACTION_SIZE
 from enviroment import Environment, Action
 
 
@@ -51,7 +50,7 @@ class GreedyQlearning(Agent):
         super().__init__(environment, gamma, alpha)
 
         self.epsilon = epsilon
-        self.q_values = np.empty(shape=(environment.states, ACTION_SIZE))
+        self.q_values = np.empty(shape=(environment.states, len(Action)))
         self.q_values.fill(-math.inf)
         for state in range(environment.states):
             # value = 1 if self.env.isTerminal(state) else 0
@@ -92,7 +91,7 @@ class GreedyQlearning(Agent):
         realEpisode = 0
         for i in range(episode):
             max_diff = -math.inf
-            for x in range(self.env.states):
+            for x in self.env.legal_states:
                 if self.env.isTerminal(x) or not self.env.isValid(x):
                     continue
                 action = self.chooseAction(x)
