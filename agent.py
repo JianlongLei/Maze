@@ -137,37 +137,32 @@ class Agent:
 
 
 class DPQlearning:
-    def __init__(self, environment: Environment, gamma=0.9):
+    def __init__(self, environment: Environment, gamma=0.9, alpha=0.9):
         self.env = environment
         self.gamma = gamma
         # self.epsilon = epsilon
-        # self.alpha = alpha
+        self.alpha = alpha
         self.q_values = np.zeros((self.env.states, len(Action)))
 
     def update_q_values(self):
-        new_q_values = np.copy(self.q_values)
+        new_q_values = np.copy(self.q_values)  # deep copy
 
-        for state in range(self.env.states):
-            # 跳过
-            if self.env.isTerminal(state) or not self.env.isValid(state):
-                continue
-
+        for state in self.env.legal_states:
             for action in Action:
-                new_q_values[state, action] = self.calculate_q_value(state, action)
-
+                new_q_values[state][action.value] = self.calculate_q_value(state, action)
         self.q_values = new_q_values
 
-    def calculate_q_value(self, state, action):
-        q_value = 0
-        next_state = self.env.doAction(state, action)
+    def calculate_q_value(self, cur_state, action: Action):
+        # q_value = 0
+        next_state = self.env.doAction(cur_state, action)
+        q_value = self.q_values[cur_state][action.value]
+        reward = self.env.reward[next_state]
+        max_q = max(self.q_values[next_state])
 
-        for next_state in range(self.env.states):
-            # probability = self.transition_probs[state, action, next_state]
-            # reward = self.rewards[state, action, next_state]
-            discounted_future_reward = self.gamma * np.max(self.q_values[next_state, :])
-            q_value += probability * (reward + discounted_future_reward)
+        diff = reward + self.gamma * max_q - q_value
+        new_q_value = q_value + self.alpha * diff
 
-        return q_value
+        return new_q_value
 
     def train(self, num_iterations=100):
         for _ in range(num_iterations):

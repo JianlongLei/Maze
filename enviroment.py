@@ -1,5 +1,7 @@
 from enum import Enum
 
+import numpy as np
+
 from consts import *
 
 
@@ -24,6 +26,13 @@ class Environment:
         height, width = np.shape(map)
         self.width = width
         self.height = height
+
+        state_size = np.size(map)
+        self.legal_states = []
+        for x in range(state_size):
+            if not self.isTerminal(x) and self.isValid(x):
+                self.legal_states.append(x)
+
         self.states = np.size(map)
         self.reward = []
         for rows in map:
