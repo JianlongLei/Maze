@@ -35,13 +35,13 @@ class Environment:
             item_action = np.array([True] * ACTION_SIZE)
             # on the left side, no left action
             if s % width == 0:
-                item_action[ACTION_LEFT] = False
+                item_action[Action.LEFT] = False
             if s // width == height - 1:
-                item_action[ACTION_DOWN] = False
+                item_action[Action.DOWN] = False
             if s % width == width - 1:
-                item_action[ACTION_RIGHT] = False
+                item_action[Action.RIGHT] = False
             if s // width == 0:
-                item_action[ACTION_TOP] = False
+                item_action[Action.UP] = False
             self.actions.append(item_action)
             for action in self.actionList(s):
                 if self.reward[self.doAction(s, action)] < 0:
@@ -51,13 +51,13 @@ class Environment:
         if not self.actions[state_from][action]:
             return state_from
         state_to = state_from
-        if action == ACTION_LEFT:
+        if action == Action.LEFT:
             state_to = state_from - 1
-        elif action == ACTION_TOP:
+        elif action == Action.UP:
             state_to = state_from - self.width
-        elif action == ACTION_RIGHT:
+        elif action == Action.RIGHT:
             state_to = state_from + 1
-        elif action == ACTION_DOWN:
+        elif action == Action.DOWN:
             state_to = state_from + self.width
         return state_to
 
