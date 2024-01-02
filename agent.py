@@ -10,8 +10,34 @@ from enviroment import Environment, Action
 
 
 class Agent:
-    # Q value
-    q_value = []
+    def __init__(self, environment: Environment, gamma=0.9, alpha=0.9):
+        self.env = environment
+        self.gamma = gamma
+        self.alpha = alpha
+        self.q_values = np.zeros((self.env.states, len(Action)))
+
+    def update_q_values(self):
+        pass
+
+    def train(self, num_iterations=100):
+        for _ in range(num_iterations):
+            self.update_q_values()
+
+    def get_result(self, start_state):
+        x = start_state
+        results = []
+        while not self.env.isTerminal(x):
+            best_value = np.argmax(self.q_values[x])
+            best_action = Action(best_value)
+
+            results.append(x)
+            xp = self.env.doAction(x, best_action)
+            x = xp
+        print("dp res:", results)
+        return results
+
+
+class GreedyQlearning(Agent):
 
     def __init__(self, environment: Environment, gamma=0.9, epsilon=0.9, alpha=0.9):
         """
@@ -22,10 +48,9 @@ class Agent:
         :param alpha: α, learning rate.
         """
 
-        self.gamma = gamma
+        super().__init__(environment, gamma, alpha)
+
         self.epsilon = epsilon
-        self.alpha = alpha
-        self.env = environment
         self.q_value = np.empty(shape=(environment.states, ACTION_SIZE))
         self.q_value.fill(-math.inf)
         for state in range(environment.states):
@@ -120,7 +145,7 @@ class Agent:
 
         print("q-value:", self.q_value)
 
-    def getResult(self, start_state):
+    def get_result(self, start_state):
         x = start_state
         results = []
         while not self.env.isTerminal(x):
@@ -136,14 +161,7 @@ class Agent:
         return results
 
 
-class DPQlearning:
-    def __init__(self, environment: Environment, gamma=0.9, alpha=0.9):
-        self.env = environment
-        self.gamma = gamma
-        # self.epsilon = epsilon
-        self.alpha = alpha
-        self.q_values = np.zeros((self.env.states, len(Action)))
-
+class DPQlearning(Agent):
     def update_q_values(self):
         new_q_values = np.copy(self.q_values)  # deep copy
 
@@ -163,30 +181,3 @@ class DPQlearning:
         new_q_value = q_value + self.alpha * diff
 
         return new_q_value
-
-    def train(self, num_iterations=100):
-        for _ in range(num_iterations):
-            self.update_q_values()
-
-    def getResult(self, start_state):
-        x = start_state
-        results = []
-        while not self.env.isTerminal(x):
-            best_value = np.argmax(self.q_values[x])
-            best_action = Action(best_value)
-
-            results.append(x)
-            xp = self.env.doAction(x, best_action)
-            x = xp
-        print("res:", results)
-        return results
-
-
-class GreedyQlearning:
-    def __init__(self, environment: Environment, gamma=0.9, epsilon=0.9, alpha=0.9):
-        self.env = environment
-        self.gamma = gamma
-        self.epsilon = epsilon
-        self.alpha = alpha
-
-        self.q_values = np.zeros((self.env.states, ACTION_SIZE))
