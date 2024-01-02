@@ -32,24 +32,37 @@ class Environment:
         self.start = self.axisToState(start_position)
         self.end = self.axisToState(end_position)
         for s in range(self.states):
-            item_action = np.array([True] * ACTION_SIZE)
+            # item_action = np.array([True] * ACTION_SIZE)
             # on the left side, no left action
-            if s % width == 0:
-                item_action[Action.LEFT] = False
-            if s // width == height - 1:
-                item_action[Action.DOWN] = False
-            if s % width == width - 1:
-                item_action[Action.RIGHT] = False
-            if s // width == 0:
-                item_action[Action.UP] = False
-            self.actions.append(item_action)
-            for action in self.actionList(s):
-                if self.reward[self.doAction(s, action)] < 0:
-                    self.actions[s][action] = False
+            # if s % width == 0:
+            #     item_action[Action.LEFT.value] = False
+            # if s // width == height - 1:
+            #     item_action[Action.DOWN.value] = False
+            # if s % width == width - 1:
+            #     item_action[Action.RIGHT.value] = False
+            # if s // width == 0:
+            #     item_action[Action.UP.value] = False
+            state_action = []
+            if s % width != 0:
+                state_action.append(Action.LEFT)
+            if s // width != height - 1:
+                state_action.append(Action.DOWN)
+            if s % width != width - 1:
+                state_action.append(Action.RIGHT)
+            if s // width != 0:
+                state_action.append(Action.UP)
+            # self.actions.append(state_action)
+            legal_actions = []
+            for action in state_action:
+                if self.reward[self.doAction(s, action)] >= 0:
+                    legal_actions.append(action)
 
-    def doAction(self, state_from, action):
-        if not self.actions[state_from][action]:
-            return state_from
+            self.actions.append(legal_actions)
+
+    def doAction(self, state_from, action: Action):
+        # if not self.actions[state_from][action.value]:
+        # if action not in self.actions[state_from]:
+        #     return state_from
         state_to = state_from
         if action == Action.LEFT:
             state_to = state_from - 1
@@ -63,7 +76,8 @@ class Environment:
 
     def actionList(self, state):
         if 0 <= state < self.states:
-            return ACTION_LIST[self.actions[state]]
+            # return ACTION_LIST[self.actions[state]]
+            return self.actions[state]
         return []
 
     def isTerminal(self, state):

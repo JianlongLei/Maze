@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 from consts import ACTION_SIZE
-from enviroment import Environment
+from enviroment import Environment, Action
 
 
 class Agent:
@@ -32,7 +32,7 @@ class Agent:
             # value = 1 if self.env.isTerminal(state) else 0
             for action in environment.actionList(state):
                 # self.q_value[state][action] = value
-                self.q_value[state][action] = 0
+                self.q_value[state][action.value] = 0
 
     def chooseAction(self, state):
         r = random.random()
@@ -71,17 +71,20 @@ class Agent:
     #         return available_states[index], available_actions[index]
 
     def allQValues(self, state):
-        return self.q_value[state][self.env.actions[state]]
+        return self.q_value[state]
+        # return self.q_value[state][self.env.actions[state]]
 
     def chooseBestAction(self, state):
-        return np.argmax(self.q_value[state])
+        value = np.argmax(self.q_value[state])
+        return Action(value)
 
-    def update_q_value(self, state_from, state_to, action):
-        q_x_a = self.q_value[state_from][action]
+    def update_q_value(self, state_from, state_to, action: Action):
+        val = action.value
+        q_x_a = self.q_value[state_from][val]
         reward_x = self.env.reward[state_to]
         max_q_xp = max(self.allQValues(state_to))
         update_value = self.alpha * (reward_x + self.gamma * max_q_xp - q_x_a)
-        self.q_value[state_from][action] = q_x_a + update_value
+        self.q_value[state_from][val] = q_x_a + update_value
         return update_value
 
     def learn(self):
@@ -139,8 +142,36 @@ class DPQlearning:
         self.gamma = gamma
         # self.epsilon = epsilon
         # self.alpha = alpha
-        self.q_values = np.zeros((self.env.states, ACTION_SIZE))
+        self.q_values = np.zeros((self.env.states, len(Action)))
 
+    def update_q_values(self):
+        new_q_values = np.copy(self.q_values)
+
+        for state in range(self.env.states):
+            # 跳过
+            if self.env.isTerminal(state) or not self.env.isValid(state):
+                continue
+
+            for action in Action:
+                new_q_values[state, action] = self.calculate_q_value(state, action)
+
+        self.q_values = new_q_values
+
+    def calculate_q_value(self, state, action):
+        q_value = 0
+        next_state = self.env.doAction(state, action)
+
+        for next_state in range(self.env.states):
+            # probability = self.transition_probs[state, action, next_state]
+            # reward = self.rewards[state, action, next_state]
+            discounted_future_reward = self.gamma * np.max(self.q_values[next_state, :])
+            q_value += probability * (reward + discounted_future_reward)
+
+        return q_value
+
+    def train(self, num_iterations=100):
+        for _ in range(num_iterations):
+            self.update_q_values()
 
 
 class GreedyQlearning:
