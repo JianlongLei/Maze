@@ -18,5 +18,5 @@ class Game:
         self.agent2.train()
         # result = self.agent.get_result(self.env.axisToState(self.start_position))
         res = self.agent2.get_result(self.env.axisToState(self.start_position))
-
-        return res
+        policy = self.agent2.get_policy()
+        return res, policy

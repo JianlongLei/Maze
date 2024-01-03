@@ -37,7 +37,6 @@ class Agent:
         return results
 
     def get_policy(self):
-        arr = self.q_values
         policy = []
         for row in self.q_values:
             actions = []
