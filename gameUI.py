@@ -47,15 +47,14 @@ class GameUI:
         for action in actions:
             x1, y1 = x, y
             if action == Action.LEFT:
-                x1 -= length/2
+                x1 -= length / 2
             elif action == Action.UP:
-                y1 -= length/2
+                y1 -= length / 2
             elif action == Action.RIGHT:
-                x1 += length/2
+                x1 += length / 2
             elif action == Action.DOWN:
                 y1 += length / 2
-            self.canvas.create_line(x, y, x1, y1, width=2, arrow=tkinter.LAST,
-                                    fill=color)
+            self.canvas.create_line(x, y, x1, y1, width=2, arrow=tkinter.LAST, fill=color)
 
     def drawMap(self):
         for y in range(self.game.height):

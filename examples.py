@@ -12,11 +12,10 @@ def example_1():
         [0, 0, 0, 0, -1, 0, 0, 0],
         [0, 0, -1, 0, 0, 0, -1, 0],
     ])
-    x_start = 0
-    y_start = 0
-    x_target = 7
-    y_target = 0
-    return map, x_start, y_start, x_target, y_target
+    start_point = (0, len(map) - 1)
+    indices = np.where(map > 0)
+    end_points = list(zip(indices[1], indices[0]))
+    return map, start_point, end_points
 
 
 def example_2():
@@ -305,7 +304,7 @@ def example_8():
         [0, 0, 0, 0, 0],
     ])
 
-    start_point = (0, 4)
+    start_point = (0, len(map) - 1)
     indices = np.where(map > 0)
     end_points = list(zip(indices[1], indices[0]))
     return map, start_point, end_points

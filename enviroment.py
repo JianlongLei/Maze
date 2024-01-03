@@ -2,8 +2,6 @@ from enum import Enum
 
 import numpy as np
 
-from consts import *
-
 
 class Action(Enum):
     LEFT = 0
