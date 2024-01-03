@@ -31,8 +31,12 @@ class Environment:
         for rows in map:
             for item in rows:
                 self.reward.append(item)
+
         self.start = self.axisToState(start_position)
-        self.end = self.axisToState(end_position)
+        if isinstance(end_position, list):
+            self.end = [self.axisToState(point) for point in end_position]
+        else:
+            self.end = self.axisToState(end_position)
 
         state_size = np.size(map)
         self.legal_states = []
@@ -90,7 +94,7 @@ class Environment:
         return []
 
     def isTerminal(self, state):
-        return state == self.end
+        return state in self.end
 
     def isValid(self, state):
         return self.reward[state] >= 0

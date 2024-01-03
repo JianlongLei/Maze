@@ -7,7 +7,7 @@ def example_1():
         [0, -1, -1, 0, -1, 0, -1, 0],
         [0, 0, 0, 0, -1, 0, -1, 0],
         [-1, 0, -1, -1, -1, 0, -1, 0],
-        [0, 0, -1, 0, 0, 0, -1, 0],
+        [0, 0, -1, 0, 0, 0, 0, 0],
         [0, -1, -1, -1, -1, -1, -1, 0],
         [0, 0, 0, 0, -1, 0, 0, 0],
         [0, 0, -1, 0, 0, 0, -1, 0],
@@ -294,3 +294,18 @@ def example_7():
     x_target = 59
     y_target = 59
     return map, x_start, y_start, x_target, y_target
+
+
+def example_8():
+    map = np.array([
+        [0.5, 0, 0, 0, 1],
+        [0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0],
+    ])
+
+    start_point = (0, 4)
+    indices = np.where(map > 0)
+    end_points = list(zip(indices[0], indices[1]))
+    return map, start_point, end_points
