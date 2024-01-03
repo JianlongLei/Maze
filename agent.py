@@ -36,6 +36,17 @@ class Agent:
         print("res:", results)
         return results
 
+    def get_policy(self):
+        arr = self.q_values
+        policy = []
+        for row in self.q_values:
+            actions = []
+            max_indices = np.where(row == np.max(row))
+            for val in max_indices[0]:
+                actions.append(Action(val))
+            policy.append(actions)
+        return policy
+
 
 class GreedyQlearning(Agent):
 
