@@ -1,5 +1,3 @@
-import numpy as np
-
 ACTION_LEFT = 0
 ACTION_TOP = 1
 ACTION_RIGHT = 2
