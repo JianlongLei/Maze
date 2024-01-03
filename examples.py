@@ -307,5 +307,5 @@ def example_8():
 
     start_point = (0, 4)
     indices = np.where(map > 0)
-    end_points = list(zip(indices[0], indices[1]))
+    end_points = list(zip(indices[1], indices[0]))
     return map, start_point, end_points

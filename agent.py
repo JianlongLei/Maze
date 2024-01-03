@@ -21,6 +21,7 @@ class Agent:
     def train(self, episode=100):
         for _ in range(episode):
             self.update()
+        print("q-value:", self.q_values)
 
     def get_result(self, start_state):
         x = start_state
@@ -32,7 +33,7 @@ class Agent:
             results.append(x)
             xp = self.env.doAction(x, best_action)
             x = xp
-        print("dp res:", results)
+        print("res:", results)
         return results
 
 
@@ -112,8 +113,6 @@ class GreedyQlearning(Agent):
         print("gradient:", np.gradient(all_diff))
         plt.plot(all_diff)
         plt.show()
-
-        print("q-value:", self.q_values)
 
 
 class DPQlearning(Agent):
