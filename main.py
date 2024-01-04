@@ -1,13 +1,12 @@
-import numpy as np
+from tkinter import *
 
 from examples import *
 from game import Game
 from gameUI import GameUI
-from tkinter import *
 
 if __name__ == '__main__':
     # 8*8 normal maze
-    map, x_start, y_start, x_target, y_target = example_1()
+    map, start_point, end_points = example_8()
     # 4*4 normal maze
     # map, x_start, y_start, x_target, y_target = example_2()
     # 3*3 simple maze
@@ -17,7 +16,7 @@ if __name__ == '__main__':
     # 5*5 simple maze
     # map, x_start, y_start, x_target, y_target = example_6()
 
-    game = Game(map, (x_start, y_start), (x_target, y_target))
+    game = Game(map, start_point, end_points)
     window = Tk()
     gameUI = GameUI(window, game, itemSize=50, speed=0.2)
     gameUI.drawMap()

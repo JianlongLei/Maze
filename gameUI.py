@@ -1,5 +1,8 @@
 import time
+import tkinter
 from tkinter import *
+
+from enviroment import Action
 from game import Game
 
 
@@ -9,6 +12,7 @@ class GameUI:
     blockColor = "#fc036b"
     pathColor = "#03bafc"
     startColor = "#fcec03"
+    black = "#000000"
     itemSize = 50
     speed = 0.3
 
@@ -35,6 +39,23 @@ class GameUI:
         else:
             self.canvas.create_rectangle(x, y, x + self.itemSize, y + self.itemSize, fill=color, outline=color)
 
+    def drawLine(self, x, y, color, actions):
+        length = self.itemSize
+        x = x * length + length / 2
+        y = y * length + length / 2
+
+        for action in actions:
+            x1, y1 = x, y
+            if action == Action.LEFT:
+                x1 -= length / 2
+            elif action == Action.UP:
+                y1 -= length / 2
+            elif action == Action.RIGHT:
+                x1 += length / 2
+            elif action == Action.DOWN:
+                y1 += length / 2
+            self.canvas.create_line(x, y, x1, y1, width=2, arrow=tkinter.LAST, fill=color)
+
     def drawMap(self):
         for y in range(self.game.height):
             for x in range(self.game.width):
@@ -50,9 +71,13 @@ class GameUI:
     def drawResult(self):
         self.canvas.delete(ALL)
         self.drawMap()
-        result = self.game.solve()
+        result, policy = self.game.solve()
         for state in result[1:]:
             time.sleep(self.speed)
             axis = self.game.env.stateToAxis(state)
             self.drawItem(axis[0], axis[1], color=self.pathColor, line=False)
             self.canvas.update()
+
+        for state in self.game.env.legal_states:
+            axis = self.game.env.stateToAxis(state)
+            self.drawLine(axis[0], axis[1], self.black, policy[state])
