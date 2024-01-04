@@ -15,13 +15,21 @@ class Agent:
         self.alpha = alpha
         self.q_values = np.zeros((self.env.states, len(Action)))
 
+        self.records = []
+
     def update(self):
         pass
 
-    def train(self, episode=100):
+    def _record(self):
+        start_state = self.env.start
+        q_val = self.q_values[start_state]
+        self.records.append(max(q_val))
+
+    def train(self, episode=50):
         for _ in range(episode):
             self.update()
-        print("q-value:", self.q_values)
+            self._record()
+        # print("q-value:", self.q_values)
 
     def get_result(self, start_state):
         x = start_state
@@ -112,6 +120,7 @@ class GreedyQlearning(Agent):
                 if diff > max_diff:
                     max_diff = diff
             all_diff.append(max_diff)
+            self._record()
             if span > max_diff:
                 turns += 1
                 if turns >= 10:
