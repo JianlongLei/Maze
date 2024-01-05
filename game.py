@@ -9,50 +9,56 @@ class Game:
     def __init__(self, maze_map, start_position, end_position):
         self.maze_map = maze_map
         self.env = Environment(maze_map, start_position, end_position)
-        self.agent = GreedyQlearning(self.env)
-        self.agent2 = DPQlearning(self.env)
-        self.agent3 = DPQlearning(self.env, alpha=0.8)
-        self.agent4 = DPQlearning(self.env, alpha=0.7)
-        self.agent5 = DPQlearning(self.env, alpha=0.5)
 
-        self.greedy_agent2 = GreedyQlearning(self.env, epsilon=0.8)
-        self.greedy_agent3 = GreedyQlearning(self.env, epsilon=0.6)
+        self.dp_agent1 = DPQlearning(self.env)
+        self.dp_agent2 = DPQlearning(self.env, alpha=0.8)
+        self.dp_agent3 = DPQlearning(self.env, alpha=0.6)
+
+        self.greedy_agent1 = GreedyQlearning(self.env)
+        self.greedy_agent2 = GreedyQlearning(self.env, epsilon=0.7)
+        self.greedy_agent3 = GreedyQlearning(self.env, epsilon=0.3)
 
         self.start_position = start_position
         self.width = self.env.width
         self.height = self.env.height
 
     def solve(self):
-        self.agent.train()
-        self.agent2.train()
-        self.agent3.train()
-        self.agent4.train()
-        self.agent5.train()
+        self.dp_agent1.train()
+        self.dp_agent2.train()
+        self.dp_agent3.train()
 
+        self.greedy_agent1.train()
         self.greedy_agent2.train()
         self.greedy_agent3.train()
         # result = self.agent.get_result(self.env.axisToState(self.start_position))
-        res = self.agent2.get_result(self.env.axisToState(self.start_position))
-        policy = self.agent2.get_policy()
+        res = self.dp_agent1.get_result(self.env.axisToState(self.start_position))
+        policy = self.dp_agent1.get_policy()
         # policy = self.agent.get_policy()
-        records2 = self.agent2.records
-        records3 = self.agent3.records
-        records4 = self.agent4.records
-        records5 = self.agent5.records
+        self.draw()
+        return res, policy
 
-        records = self.agent.records
-        records_g2 = self.greedy_agent2.records
-        records_g3 = self.greedy_agent3.records
-        # print(records)
-        plt.plot(records2)
-        plt.plot(records3)
-        plt.plot(records4)
-        plt.plot(records5)
+    def draw(self):
+        dp_records1 = self.dp_agent1.records
+        dp_records2 = self.dp_agent2.records
+        dp_records3 = self.dp_agent3.records
+
+        g1_records = self.greedy_agent1.records
+        g2_records = self.greedy_agent2.records
+        g3_records = self.greedy_agent3.records
+        # draw figures
+        plt.plot(dp_records1, label="α=0.9")
+        plt.plot(dp_records2, label="α=0.8")
+        plt.plot(dp_records3, label="α=0.6")
+        plt.xlabel('Episode')
+        plt.ylabel('Cumulative Reward')
+        plt.legend()
         plt.show()
 
         plt.figure()
-        plt.plot(records)
-        plt.plot(records_g2)
-        plt.plot(records_g3)
+        plt.plot(g1_records[:100], label="ε=0.9")
+        plt.plot(g2_records[:100], label="ε=0.7")
+        plt.plot(g3_records[:100], label="ε=0.3")
+        plt.xlabel('Episode')
+        plt.ylabel('Cumulative Reward')
+        plt.legend()
         plt.show()
-        return res, policy

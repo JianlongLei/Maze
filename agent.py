@@ -2,7 +2,6 @@ import math
 import random
 import time
 
-import matplotlib.pyplot as plt
 import numpy as np
 
 from enviroment import Environment, Action
@@ -26,9 +25,15 @@ class Agent:
         self.records.append(max(q_val))
 
     def train(self, episode=50):
+        span = 1e-30
         for _ in range(episode):
             self.update()
             self._record()
+            if len(self.records) > 10:
+                q1, q2 = self.records[-2:]
+                if q2 - q1 < span:
+                    break
+
         # print("q-value:", self.q_values)
 
     def get_result(self, start_state):
@@ -130,8 +135,8 @@ class GreedyQlearning(Agent):
         print("total epochs:", realEpisode)
         print("diff:", all_diff)
         print("gradient:", np.gradient(all_diff))
-        plt.plot(all_diff)
-        plt.show()
+        # plt.plot(all_diff)
+        # plt.show()
 
 
 class DPQlearning(Agent):
