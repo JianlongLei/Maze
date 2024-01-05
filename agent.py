@@ -1,10 +1,14 @@
 import math
 import random
 import time
+from collections import deque
 
 import numpy as np
+import torch
+from torch.optim import Adam
 
 from enviroment import Environment, Action
+from model import DQNModel
 
 
 class Agent:
@@ -62,7 +66,7 @@ class Agent:
 
 class GreedyQlearning(Agent):
 
-    def __init__(self, environment: Environment, gamma=0.9, epsilon=0.9, alpha=0.9):
+    def __init__(self, environment: Environment, gamma=0.9, alpha=0.9, epsilon=0.9):
         """
         Initialization function.
         :param environment:
@@ -84,7 +88,9 @@ class GreedyQlearning(Agent):
 
     def chooseAction(self, state):
         r = random.random()
-        if r >= self.epsilon:
+        max_val = max(self.q_values[state])
+        min_val = min(self.q_values[state])
+        if r >= self.epsilon and max_val != min_val:
             return self.chooseBestAction(state)
         else:
             return np.random.choice(self.env.actionList(state))
@@ -126,11 +132,11 @@ class GreedyQlearning(Agent):
                     max_diff = diff
             all_diff.append(max_diff)
             self._record()
-            if span > max_diff:
-                turns += 1
-                if turns >= 10:
-                    realEpisode = i
-                    break
+            # if span > max_diff:
+            #     turns += 1
+            #     if turns >= 10:
+            #         realEpisode = i
+            #         break
         print("total time:", time.time() - start)
         print("total epochs:", realEpisode)
         print("diff:", all_diff)
@@ -159,3 +165,20 @@ class DPQlearning(Agent):
         new_q_value = q_value + self.alpha * diff
 
         return new_q_value
+
+
+class DQNAgent(Agent):
+    def __init__(self, environment: Environment, gamma=0.9, alpha=0.9, epsilon=0.9, lr=0.9):
+        super().__init__(environment, gamma, alpha)
+        self.epsilon = epsilon
+
+        self.replay_memory = deque(maxlen=2000)
+
+        self.model = DQNModel(self.env.states, len(Action))
+        self.optimizer = torch.optim.Adam(self.model.parameters(), lr=lr)
+
+
+    def update(self):
+        pass
+
+

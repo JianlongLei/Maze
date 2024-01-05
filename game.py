@@ -16,7 +16,9 @@ class Game:
 
         self.greedy_agent1 = GreedyQlearning(self.env)
         self.greedy_agent2 = GreedyQlearning(self.env, epsilon=0.7)
-        self.greedy_agent3 = GreedyQlearning(self.env, epsilon=0.3)
+        self.greedy_agent3 = GreedyQlearning(self.env, epsilon=0.5)
+        self.greedy_agent4 = GreedyQlearning(self.env, epsilon=0.3)
+        self.greedy_agent5 = GreedyQlearning(self.env, epsilon=0.1)
 
         self.start_position = start_position
         self.width = self.env.width
@@ -30,6 +32,8 @@ class Game:
         self.greedy_agent1.train()
         self.greedy_agent2.train()
         self.greedy_agent3.train()
+        self.greedy_agent4.train()
+        self.greedy_agent5.train()
         # result = self.agent.get_result(self.env.axisToState(self.start_position))
         res = self.dp_agent1.get_result(self.env.axisToState(self.start_position))
         policy = self.dp_agent1.get_policy()
@@ -45,6 +49,8 @@ class Game:
         g1_records = self.greedy_agent1.records
         g2_records = self.greedy_agent2.records
         g3_records = self.greedy_agent3.records
+        g4_records = self.greedy_agent4.records
+        g5_records = self.greedy_agent5.records
         # draw figures
         plt.plot(dp_records1, label="α=0.9")
         plt.plot(dp_records2, label="α=0.8")
@@ -57,7 +63,9 @@ class Game:
         plt.figure()
         plt.plot(g1_records[:100], label="ε=0.9")
         plt.plot(g2_records[:100], label="ε=0.7")
-        plt.plot(g3_records[:100], label="ε=0.3")
+        plt.plot(g3_records[:100], label="ε=0.5")
+        plt.plot(g4_records[:100], label="ε=0.3")
+        plt.plot(g5_records[:100], label="ε=0.1")
         plt.xlabel('Episode')
         plt.ylabel('Cumulative Reward')
         plt.legend()
