@@ -12,7 +12,7 @@ def example_1():
         [0, 0, 0, 0, -1, 0, 0, 0],
         [0, 0, -1, 0, 0, 0, -1, 0],
     ])
-    start_point = (0, len(map) - 1)
+    start_point = (0, 0)
     indices = np.where(map > 0)
     end_points = list(zip(indices[1], indices[0]))
     return map, start_point, end_points
@@ -110,7 +110,7 @@ def example_6():
     y_start = 4
     x_target = 4
     y_target = 0
-    return map, x_start, y_start, x_target, y_target
+    return map, (x_start, y_start), (x_target, y_target)
 
 
 def example_7():
