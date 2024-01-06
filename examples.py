@@ -38,7 +38,7 @@ def example_3():
     y_start = 2
     x_target = 2
     y_target = 0
-    return map, x_start, y_start, x_target, y_target
+    return map, (x_start, y_start), (x_target, y_target)
 
 
 def example_4():
