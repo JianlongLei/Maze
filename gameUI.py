@@ -16,19 +16,27 @@ class GameUI:
     itemSize = 50
     speed = 0.3
 
-    def __init__(self, window, game: Game, itemSize=50, speed=0.3, border=True):
+    def __init__(self, window, games, itemSize=50, speed=0.3, border=True):
         self.window = window
         self.window.title("MAZE")
         self.itemSize = itemSize
         self.speed = speed
         self.border = border
+        self.index = 0
+        self.gameCounts = len(games)
+        game = games[self.index]
         topFrame = Frame(window)
         topFrame.pack(side=TOP, fill='both')
         newGame = Button(topFrame, text="Run", command=self.drawResult)
         newGame.pack(side=LEFT, padx=10, pady=10)
+        preGame = Button(topFrame, text="Previous", command=self.drawPrevious)
+        preGame.pack(side=LEFT, padx=10, pady=10)
+        nextGame = Button(topFrame, text="Next", command=self.drawNext)
+        nextGame.pack(side=LEFT, padx=10, pady=10)
         self.canvas = Canvas(self.window, width=game.width * self.itemSize, height=game.height * self.itemSize,
                              bg=self.backgroundColor)
         self.canvas.pack()
+        self.allGames = games
         self.game = game
 
     def drawItem(self, x, y, color, line=True):
@@ -57,6 +65,7 @@ class GameUI:
             self.canvas.create_line(x, y, x1, y1, width=2, arrow=tkinter.LAST, fill=color)
 
     def drawMap(self):
+        self.canvas.config(width=self.game.width * self.itemSize, height=self.game.height * self.itemSize)
         for y in range(self.game.height):
             for x in range(self.game.width):
                 if self.game.maze_map[y][x] > 0:
@@ -67,6 +76,7 @@ class GameUI:
                     self.drawItem(x, y, self.backgroundColor, self.border)
         start = self.game.start_position
         self.drawItem(start[0], start[1], self.startColor, self.border)
+        self.window.update()
 
     def drawResult(self):
         self.canvas.delete(ALL)
@@ -81,3 +91,17 @@ class GameUI:
         for state in self.game.env.legal_states:
             axis = self.game.env.stateToAxis(state)
             self.drawLine(axis[0], axis[1], self.black, policy[state])
+
+    def drawPrevious(self):
+        self.index -= 1
+        if self.index < 0:
+            self.index = self.gameCounts - 1
+        self.game = self.allGames[self.index]
+        self.drawMap()
+
+    def drawNext(self):
+        self.index += 1
+        if self.index >= self.gameCounts:
+            self.index = 0
+        self.game = self.allGames[self.index]
+        self.drawMap()

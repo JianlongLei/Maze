@@ -5,20 +5,28 @@ from game import Game
 from gameUI import GameUI
 
 if __name__ == '__main__':
-    # 8*8 normal maze
-    map, start_point, end_points = example_8()
+
     # 4*4 normal maze
     # map, x_start, y_start, x_target, y_target = example_2()
-    # 3*3 simple maze
-    # map, start_point, end_points = example_3()
+
     # 5*5 normal maze
     # map, x_start, y_start, x_target, y_target = example_4()
-    # 5*5 simple maze
-    # map, x_start, y_start, x_target, y_target = example_6()
 
-    game = Game(map, start_point, end_points)
+    games = []
+    # 8*8 normal maze
+    map, start_point, end_points = example_8()
+    games.append(Game(map, start_point, end_points))
+
+    # 3*3 simple maze
+    map, start_point, end_points = example_3()
+    games.append(Game(map, start_point, end_points))
+
+    # 5*5 simple maze
+    map, start_point, end_points = example_6()
+    games.append(Game(map, start_point, end_points))
+
     window = Tk()
-    gameUI = GameUI(window, game, itemSize=50, speed=0.2)
+    gameUI = GameUI(window, games, itemSize=50, speed=0.2)
     gameUI.drawMap()
     window.mainloop()
 
