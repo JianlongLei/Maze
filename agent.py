@@ -196,8 +196,13 @@ class DQNAgent(Agent):
         self.memory = ReplayMemory(capacity=2000)
 
         self.q_network = DQNModel(self.env.states, len(Action))
+        self.target_network = DQNModel(self.env.states, len(Action))
+        self.target_network.load_state_dict(self.q_network.state_dict())
+        self.target_network.eval()
+
         self.optimizer = torch.optim.Adam(self.q_network.parameters(), lr=lr)
         self.loss_function = torch.nn.MSELoss()
+        self.loss_list = []
 
     def get_best_action(self, state):
         legal_action = [a.value for a in self.env.actionList(state)]
@@ -218,9 +223,9 @@ class DQNAgent(Agent):
             return self.get_best_action(state)
 
     def update(self):
-        if len(self.memory) < 32:
+        if len(self.memory) < 64:
             return
-        transitions = self.memory.sample(32)
+        transitions = self.memory.sample(64)
         batch = Transition(*zip(*transitions))
         # print(batch)
         state_batch = np.eye(self.env.states)[list(batch.state)]
@@ -240,50 +245,64 @@ class DQNAgent(Agent):
         current_q_values = self.q_network(state_batch)
         # print(current_q_values)
         current_q_values = current_q_values.gather(1, action_batch)
-
-        next_q_values = self.q_network(next_state_batch).max(1)[0].detach()
+        next_q_values = self.target_network(next_state_batch).max(1)[0].detach()
         expected_q_values = reward_batch + self.gamma * next_q_values
 
+        # print(current_q_values, expected_q_values.unsqueeze(1))
+
         loss = self.loss_function(current_q_values, expected_q_values.unsqueeze(1))
+        self.loss_list.append(loss.item())
 
         self.optimizer.zero_grad()
         loss.backward()
         self.optimizer.step()
 
-    def train(self, episode=300):
+    def train(self, episode=500):
         for i in range(episode):
             state = self.env.start
-            while True:
+            # print("simulating...", i)
+            for state in self.env.legal_states:
                 action = self.select_action(state)
                 next_state = self.env.doAction(state, action)
+                # print(state, action, next_state)
                 reward = self.env.reward[state]
                 is_end = self.env.isTerminal(next_state)
                 self.memory.push(state, action, next_state, reward)
-
-                if i % 32 == 0:
-                    self.update()
-                    start = self.env.start
-                    one_hot_encoded = np.eye(self.env.states)[start]
-                    state_tensor = torch.tensor(one_hot_encoded, dtype=torch.float32)
-                    q_values = self.q_network(state_tensor)
-                    max_q = max(q_values).item()
-                    print(max_q, i)
-                    self.records.append(max_q)
-                state = next_state
-
+                self.update()
                 if is_end:
                     break
 
+            self.update_target()
+            start = self.env.start
+            one_hot_encoded = np.eye(self.env.states)[start]
+            state_tensor = torch.tensor(one_hot_encoded, dtype=torch.float32)
+            q_values = self.q_network(state_tensor)
+            max_q = max(q_values).item()
+            # print(max_q, i)
+            self.records.append(max_q)
+
     def get_result(self, start_state):
+
+        one_hot_encoded = np.eye(self.env.states)[self.env.legal_states]
+        state_tensor = torch.tensor(one_hot_encoded, dtype=torch.float32)
+        q_values = self.q_network(state_tensor)
+        print(q_values)
+
         res = [start_state]
         state = start_state
-
+        print("getting result")
+        step = 0
         while True:
             action = self.get_best_action(state)
             next_state = self.env.doAction(state, action)
+            print(state, action, next_state)
             state = next_state
-            if self.env.isTerminal(state):
+            step += 1
+            if self.env.isTerminal(state) or step > 20:
                 break
             res.append(state)
 
         return res
+
+    def update_target(self):
+        self.target_network.load_state_dict(self.q_network.state_dict())

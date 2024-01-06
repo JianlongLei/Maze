@@ -38,15 +38,17 @@ class Game:
         # self.greedy_agent5.train()
 
         self.dqn_agent.train()
+        print("train done")
+        self.draw()
         result = self.dqn_agent.get_result(self.env.start)
         print("result", result)
         # result = self.agent.get_result(self.env.axisToState(self.start_position))
         res = self.dp_agent1.get_result(self.env.start)
-        print(res)
+        # print(res)
         policy = self.dp_agent1.get_policy()
         # policy = self.agent.get_policy()
-        # self.draw()
-        return result, policy
+
+        return res, policy
 
     def draw(self):
         dp_records1 = self.dp_agent1.records
@@ -67,19 +69,24 @@ class Game:
         plt.legend()
         plt.show()
 
-        plt.figure()
-        plt.plot(g1_records[:100], label="ε=0.9")
-        plt.plot(g2_records[:100], label="ε=0.7")
-        plt.plot(g3_records[:100], label="ε=0.5")
-        plt.plot(g4_records[:100], label="ε=0.3")
-        plt.plot(g5_records[:100], label="ε=0.1")
-        plt.xlabel('Episode')
-        plt.ylabel('Cumulative Reward')
-        plt.legend()
-        plt.show()
+        # plt.figure()
+        # plt.plot(g1_records[:100], label="ε=0.9")
+        # plt.plot(g2_records[:100], label="ε=0.7")
+        # plt.plot(g3_records[:100], label="ε=0.5")
+        # plt.plot(g4_records[:100], label="ε=0.3")
+        # plt.plot(g5_records[:100], label="ε=0.1")
+        # plt.xlabel('Episode')
+        # plt.ylabel('Cumulative Reward')
+        # plt.legend()
+        # plt.show()
 
         plt.figure()
         dqn_records = self.dqn_agent.records
         plt.plot(dqn_records)
+        plt.show()
+
+        plt.figure()
+        loss = self.dqn_agent.loss_list
+        plt.plot(loss)
         plt.show()
 
