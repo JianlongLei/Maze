@@ -89,6 +89,7 @@ class Environment:
         if 0 <= state < self.states:
             # return ACTION_LIST[self.actions[state]]
             return self.actions[state]
+        print(state)
         return []
 
     def isTerminal(self, state):

@@ -38,14 +38,15 @@ class Game:
         # self.greedy_agent5.train()
 
         self.dqn_agent.train()
-        result = self.dqn_agent.get_result(start_state=self.start_position)
-        print(result)
+        result = self.dqn_agent.get_result(self.env.start)
+        print("result", result)
         # result = self.agent.get_result(self.env.axisToState(self.start_position))
-        res = self.dp_agent1.get_result(self.env.axisToState(self.start_position))
+        res = self.dp_agent1.get_result(self.env.start)
+        print(res)
         policy = self.dp_agent1.get_policy()
         # policy = self.agent.get_policy()
         # self.draw()
-        return res, policy
+        return result, policy
 
     def draw(self):
         dp_records1 = self.dp_agent1.records
@@ -76,3 +77,9 @@ class Game:
         plt.ylabel('Cumulative Reward')
         plt.legend()
         plt.show()
+
+        plt.figure()
+        dqn_records = self.dqn_agent.records
+        plt.plot(dqn_records)
+        plt.show()
+

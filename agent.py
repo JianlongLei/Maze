@@ -200,12 +200,15 @@ class DQNAgent(Agent):
         self.loss_function = torch.nn.MSELoss()
 
     def get_best_action(self, state):
+        legal_action = [a.value for a in self.env.actionList(state)]
+
         one_hot_encoded = np.eye(self.env.states)[state]
         state_tensor = torch.tensor(one_hot_encoded, dtype=torch.float32)
-        print("state_tensor", state_tensor)
         q_values = self.q_network(state_tensor)
-        print("q_values", q_values)
-        a_value = torch.argmax(q_values).item()
+
+        max_q_value = torch.max(q_values[legal_action])
+        a_value = torch.where(q_values == max_q_value)[0].item()
+
         return Action(a_value)
 
     def select_action(self, state):
@@ -219,13 +222,25 @@ class DQNAgent(Agent):
             return
         transitions = self.memory.sample(32)
         batch = Transition(*zip(*transitions))
+        # print(batch)
+        state_batch = np.eye(self.env.states)[list(batch.state)]
+        state_batch = torch.tensor(state_batch).float()
+        # print(state_batch)
+        # state_batch = torch.stack(torch.tensor(batch.state))
 
-        state_batch = torch.stack(batch.state)
-        action_batch = torch.LongTensor(batch.action).unsqueeze(1)
-        reward_batch = torch.Tensor(batch.reward)
-        next_state_batch = torch.stack(batch.next_state)
+        action_batch = [[a.value] for a in batch.action]
+        action_batch = torch.tensor(action_batch)
+        # print(action_batch)
+        # action_batch = torch.LongTensor(batch.action.value).unsqueeze(1)
+        reward_batch = torch.tensor(batch.reward)
+        next_state_batch = np.eye(self.env.states)[list(batch.next_state)]
+        next_state_batch = torch.tensor(next_state_batch).float()
 
-        current_q_values = self.q_network(state_batch).gather(1, action_batch)
+        # print(state_batch)
+        current_q_values = self.q_network(state_batch)
+        # print(current_q_values)
+        current_q_values = current_q_values.gather(1, action_batch)
+
         next_q_values = self.q_network(next_state_batch).max(1)[0].detach()
         expected_q_values = reward_batch + self.gamma * next_q_values
 
@@ -242,11 +257,18 @@ class DQNAgent(Agent):
                 action = self.select_action(state)
                 next_state = self.env.doAction(state, action)
                 reward = self.env.reward[state]
-                is_end = self.env.isTerminal(state)
+                is_end = self.env.isTerminal(next_state)
                 self.memory.push(state, action, next_state, reward)
 
                 if i % 32 == 0:
                     self.update()
+                    start = self.env.start
+                    one_hot_encoded = np.eye(self.env.states)[start]
+                    state_tensor = torch.tensor(one_hot_encoded, dtype=torch.float32)
+                    q_values = self.q_network(state_tensor)
+                    max_q = max(q_values).item()
+                    print(max_q, i)
+                    self.records.append(max_q)
                 state = next_state
 
                 if is_end:
@@ -259,10 +281,9 @@ class DQNAgent(Agent):
         while True:
             action = self.get_best_action(state)
             next_state = self.env.doAction(state, action)
-
-            res.append(next_state)
             state = next_state
             if self.env.isTerminal(state):
                 break
+            res.append(state)
 
         return res
