@@ -176,17 +176,17 @@ class ReplayMemory:
 
 
 class DQNAgent(Agent):
-    def __init__(self, environment: Environment, gamma=0.9, alpha=0.9, epsilon=0.9, lr=5e-3):
+    def __init__(self, environment: Environment, gamma=0.9, alpha=1e-3, epsilon=0.9, capacity=5000):
         super().__init__(environment, gamma, alpha)
         self.epsilon = epsilon
-        self.memory = ReplayMemory(capacity=5000)
+        self.memory = ReplayMemory(capacity=capacity)
 
         self.q_network = DQNModel(self.env.states, len(Action))
         self.target_network = DQNModel(self.env.states, len(Action))
         self.target_network.load_state_dict(self.q_network.state_dict())
         self.target_network.eval()
 
-        self.optimizer = torch.optim.Adam(self.q_network.parameters(), lr=lr)
+        self.optimizer = torch.optim.Adam(self.q_network.parameters(), lr=alpha)
         self.loss_function = torch.nn.MSELoss()
         self.loss_list = []
 
@@ -198,7 +198,7 @@ class DQNAgent(Agent):
             state_tensor = torch.tensor(one_hot_encoded, dtype=torch.float32)
             q_values = self.q_network(state_tensor)
 
-        max_q_value = torch.max(q_values[legal_action])
+        max_q_value = torch.max(q_values[legal_action]).detach()
         a_value = torch.where(q_values == max_q_value)[0].item()
         return Action(a_value)
 
@@ -266,11 +266,11 @@ class DQNAgent(Agent):
             self.records.append(max_q)
 
     def get_result(self, start_state):
-
-        one_hot_encoded = np.eye(self.env.states)[self.env.legal_states]
-        state_tensor = torch.tensor(one_hot_encoded).float()
-        q_values = self.q_network(state_tensor)
-        print(q_values)
+        with torch.no_grad():
+            one_hot_encoded = np.eye(self.env.states)[self.env.legal_states]
+            state_tensor = torch.tensor(one_hot_encoded).float()
+            q_values = self.q_network(state_tensor)
+            print(q_values)
 
         res = [start_state]
         state = start_state
@@ -278,7 +278,6 @@ class DQNAgent(Agent):
         while True:
             action = self.get_best_action(state)
             next_state = self.env.doAction(state, action)
-            print(state, action, next_state)
             state = next_state
             step += 1
             if self.env.isTerminal(state) or step > self.env.states:

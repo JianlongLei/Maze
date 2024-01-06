@@ -6,7 +6,8 @@ from gameUI import GameUI
 
 if __name__ == '__main__':
     # 8*8 normal maze
-    map, start_point, end_points = example_3()
+    map, start_point, end_points = example_8()
+
     # 4*4 normal maze
     # map, x_start, y_start, x_target, y_target = example_2()
     # 3*3 simple maze

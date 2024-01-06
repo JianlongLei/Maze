@@ -25,10 +25,10 @@ class Game:
         for agent in self.dp_agents + self.greedy_agents:
             agent.train(150)
 
-        # self.dqn_agent.train()
+        self.dqn_agent.train()
         self.draw()
-        # result = self.dqn_agent.get_result(self.env.start)
-        # print("result", result)
+        result = self.dqn_agent.get_result(self.env.start)
+        print("result", result)
         # result = self.agent.get_result(self.env.axisToState(self.start_position))
         res = self.dp_agents[0].get_result(self.env.start)
         # print(self.dp_agents[0].q_values[self.env.legal_states])
@@ -59,10 +59,10 @@ class Game:
         plt.legend()
         plt.show()
 
-        # plt.figure()
-        # dqn_records = self.dqn_agent.records
-        # plt.plot(dqn_records)
-        # plt.show()
+        plt.figure()
+        dqn_records = self.dqn_agent.records
+        plt.plot(dqn_records)
+        plt.show()
 
         # plt.figure()
         # loss = self.dqn_agent.loss_list
