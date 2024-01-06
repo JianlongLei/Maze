@@ -32,12 +32,6 @@ class Agent:
         for _ in range(episode):
             self.update()
             self._record()
-            if len(self.records) > 10:
-                q1, q2 = self.records[-2:]
-                if q2 - q1 < span:
-                    break
-
-        # print("q-value:", self.q_values)
 
     def get_result(self, start_state):
         x = start_state
@@ -70,7 +64,7 @@ class GreedyQlearning(Agent):
         Initialization function.
         :param environment:
         :param gamma: γ, discount parameter.
-        :param epsilon: ε, exploration & exploitation balancing parameter of ε-greedy.
+        :param epsilon: ε, probability of exploration.
         :param alpha: α, learning rate.
         """
 
@@ -80,9 +74,7 @@ class GreedyQlearning(Agent):
         self.q_values = np.empty(shape=(environment.states, len(Action)))
         self.q_values.fill(-math.inf)
         for state in range(environment.states):
-            # value = 1 if self.env.isTerminal(state) else 0
             for action in environment.actionList(state):
-                # self.q_value[state][action] = value
                 self.q_values[state][action.value] = 0
 
     def chooseAction(self, state):
@@ -96,7 +88,6 @@ class GreedyQlearning(Agent):
 
     def allQValues(self, state):
         return self.q_values[state]
-        # return self.q_value[state][self.env.actions[state]]
 
     def chooseBestAction(self, state):
         value = np.argmax(self.q_values[state])
@@ -136,10 +127,10 @@ class GreedyQlearning(Agent):
             #     if turns >= 10:
             #         realEpisode = i
             #         break
-        print("total time:", time.time() - start)
-        print("total epochs:", realEpisode)
-        print("diff:", all_diff)
-        print("gradient:", np.gradient(all_diff))
+        # print("total time:", time.time() - start)
+        # print("total epochs:", realEpisode)
+        # print("diff:", all_diff)
+        # print("gradient:", np.gradient(all_diff))
         # plt.plot(all_diff)
         # plt.show()
 
@@ -185,32 +176,30 @@ class ReplayMemory:
 
 
 class DQNAgent(Agent):
-    def __init__(self, environment: Environment, gamma=0.9, alpha=0.9, epsilon=0.9, lr=5e-3):
+    def __init__(self, environment: Environment, gamma=0.9, alpha=1e-3, epsilon=0.9, capacity=5000):
         super().__init__(environment, gamma, alpha)
         self.epsilon = epsilon
-        self.memory = ReplayMemory(capacity=5000)
+        self.memory = ReplayMemory(capacity=capacity)
 
         self.q_network = DQNModel(self.env.states, len(Action))
         self.target_network = DQNModel(self.env.states, len(Action))
         self.target_network.load_state_dict(self.q_network.state_dict())
         self.target_network.eval()
 
-        self.optimizer = torch.optim.Adam(self.q_network.parameters(), lr=lr)
+        self.optimizer = torch.optim.Adam(self.q_network.parameters(), lr=alpha)
         self.loss_function = torch.nn.MSELoss()
         self.loss_list = []
 
     def get_best_action(self, state):
-
+        # select best action from legal actions
         legal_action = [a.value for a in self.env.actionList(state)]
         with torch.no_grad():
             one_hot_encoded = np.eye(self.env.states)[state]
             state_tensor = torch.tensor(one_hot_encoded, dtype=torch.float32)
             q_values = self.q_network(state_tensor)
 
-        max_q_value = torch.max(q_values[legal_action])
+        max_q_value = torch.max(q_values[legal_action]).detach()
         a_value = torch.where(q_values == max_q_value)[0].item()
-        # a_value = torch.argmax(q_values).item()
-
         return Action(a_value)
 
     def select_action(self, state):
@@ -224,86 +213,75 @@ class DQNAgent(Agent):
             return
         transitions = self.memory.sample(64)
         batch = Transition(*zip(*transitions))
-        # print(batch)
+
         state_batch = np.eye(self.env.states)[list(batch.state)]
         state_batch = torch.tensor(state_batch).float()
-        # print(state_batch)
-        # state_batch = torch.stack(torch.tensor(batch.state))
 
         action_batch = [[a.value] for a in batch.action]
         action_batch = torch.tensor(action_batch)
-        # print(action_batch)
-        # action_batch = torch.LongTensor(batch.action.value).unsqueeze(1)
+
         reward_batch = torch.tensor(batch.reward).float()
+
         next_state_batch = np.eye(self.env.states)[list(batch.next_state)]
         next_state_batch = torch.tensor(next_state_batch).float()
 
         is_end_batch = torch.tensor(batch.is_end)
 
-        # print(state_batch)
         current_q_values = self.q_network(state_batch)
-        # print(current_q_values)
         current_q_values = current_q_values.gather(1, action_batch)
         next_q_values = self.target_network(next_state_batch).max(1)[0].detach()
         expected_q_values = reward_batch + self.gamma * next_q_values * (1 - is_end_batch)
 
-        # print(current_q_values, expected_q_values.unsqueeze(1))
-
         loss = self.loss_function(current_q_values, expected_q_values.unsqueeze(1))
-        # print(loss.item())
-        self.loss_list.append(loss.item())
-
         self.optimizer.zero_grad()
         loss.backward()
         self.optimizer.step()
 
+        self.loss_list.append(loss.item())
+
     def train(self, episode=500):
         for i in range(episode):
             state = self.env.start
-            # print("simulating...", i)
+
             for state in range(self.env.states):
                 action = self.select_action(state)
-                # if action not in self.env.actionList(state):
-                #     reward = -1
-                #     next_state = state
-                # else:
-
                 next_state = self.env.doAction(state, action)
                 reward = self.env.reward[next_state]
-
                 is_end = self.env.isTerminal(next_state)
+
                 self.memory.push(state, action, next_state, reward, int(is_end))
                 self.update()
+
                 if is_end:
                     break
 
             self.update_target()
-            start = self.env.start
-            one_hot_encoded = np.eye(self.env.states)[start]
-            state_tensor = torch.tensor(one_hot_encoded).float()
-            q_values = self.q_network(state_tensor)
+
+            with torch.no_grad():
+                start = self.env.start
+                one_hot_encoded = np.eye(self.env.states)[start]
+                state_tensor = torch.tensor(one_hot_encoded).float()
+                q_values = self.q_network(state_tensor)
             max_q = max(q_values).item()
-            # print(max_q, i)
             self.records.append(max_q)
 
     def get_result(self, start_state):
-
-        one_hot_encoded = np.eye(self.env.states)[self.env.legal_states]
-        state_tensor = torch.tensor(one_hot_encoded).float()
-        q_values = self.q_network(state_tensor)
-        print(q_values)
+        with torch.no_grad():
+            one_hot_encoded = np.eye(self.env.states)[self.env.legal_states]
+            state_tensor = torch.tensor(one_hot_encoded).float()
+            q_values = self.q_network(state_tensor)
+            print(q_values)
 
         res = [start_state]
         state = start_state
-        print("getting result")
         step = 0
         while True:
             action = self.get_best_action(state)
             next_state = self.env.doAction(state, action)
-            print(state, action, next_state)
             state = next_state
             step += 1
-            if self.env.isTerminal(state) or step > 20:
+            if self.env.isTerminal(state) or step > self.env.states:
+                # break dead loop
                 break
             res.append(state)
 
