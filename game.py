@@ -44,6 +44,7 @@ class Game:
         print("result", result)
         # result = self.agent.get_result(self.env.axisToState(self.start_position))
         res = self.dp_agent1.get_result(self.env.start)
+        print(self.dp_agent1.q_values[self.env.legal_states])
         # print(res)
         policy = self.dp_agent1.get_policy()
         # policy = self.agent.get_policy()
