@@ -64,7 +64,7 @@ class GreedyQlearning(Agent):
         Initialization function.
         :param environment:
         :param gamma: γ, discount parameter.
-        :param epsilon: ε, exploration & exploitation balancing parameter of ε-greedy.
+        :param epsilon: ε, probability of exploration.
         :param alpha: α, learning rate.
         """
 
