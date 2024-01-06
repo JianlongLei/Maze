@@ -34,7 +34,7 @@ class Environment:
         if isinstance(end_position, list):
             self.end = [self.axisToState(point) for point in end_position]
         else:
-            self.end = self.axisToState(end_position)
+            self.end = [self.axisToState(end_position)]
 
         state_size = np.size(map)
         self.legal_states = []
@@ -89,6 +89,7 @@ class Environment:
         if 0 <= state < self.states:
             # return ACTION_LIST[self.actions[state]]
             return self.actions[state]
+        print(state)
         return []
 
     def isTerminal(self, state):
