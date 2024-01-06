@@ -1,11 +1,10 @@
 import math
 import random
 import time
-from collections import deque
+from collections import deque, namedtuple
 
 import numpy as np
 import torch
-from torch.optim import Adam
 
 from enviroment import Environment, Action
 from model import DQNModel
@@ -167,18 +166,103 @@ class DPQlearning(Agent):
         return new_q_value
 
 
+Transition = namedtuple('Transition', ('state', 'action', 'next_state', 'reward'))
+
+
+class ReplayMemory:
+
+    def __init__(self, capacity):
+        self.capacity = capacity
+        self.memory = []
+        self.position = 0
+
+    def push(self, *args):
+        if len(self.memory) < self.capacity:
+            self.memory.append(None)
+        self.memory[self.position] = Transition(*args)
+        self.position = (self.position + 1) % self.capacity
+
+    def sample(self, batch_size):
+        return random.sample(self.memory, batch_size)
+
+    def __len__(self):
+        return len(self.memory)
+
+
 class DQNAgent(Agent):
     def __init__(self, environment: Environment, gamma=0.9, alpha=0.9, epsilon=0.9, lr=0.9):
         super().__init__(environment, gamma, alpha)
         self.epsilon = epsilon
+        self.memory = ReplayMemory(capacity=2000)
 
-        self.replay_memory = deque(maxlen=2000)
+        self.q_network = DQNModel(self.env.states, len(Action))
+        self.optimizer = torch.optim.Adam(self.q_network.parameters(), lr=lr)
+        self.loss_function = torch.nn.MSELoss()
 
-        self.model = DQNModel(self.env.states, len(Action))
-        self.optimizer = torch.optim.Adam(self.model.parameters(), lr=lr)
+    def get_best_action(self, state):
+        one_hot_encoded = np.eye(self.env.states)[state]
+        state_tensor = torch.tensor(one_hot_encoded, dtype=torch.float32)
+        print("state_tensor", state_tensor)
+        q_values = self.q_network(state_tensor)
+        print("q_values", q_values)
+        a_value = torch.argmax(q_values).item()
+        return Action(a_value)
 
+    def select_action(self, state):
+        if np.random.rand() <= self.epsilon:
+            return np.random.choice(self.env.actionList(state))
+        else:
+            return self.get_best_action(state)
 
     def update(self):
-        pass
+        if len(self.memory) < 32:
+            return
+        transitions = self.memory.sample(32)
+        batch = Transition(*zip(*transitions))
 
+        state_batch = torch.stack(batch.state)
+        action_batch = torch.LongTensor(batch.action).unsqueeze(1)
+        reward_batch = torch.Tensor(batch.reward)
+        next_state_batch = torch.stack(batch.next_state)
 
+        current_q_values = self.q_network(state_batch).gather(1, action_batch)
+        next_q_values = self.q_network(next_state_batch).max(1)[0].detach()
+        expected_q_values = reward_batch + self.gamma * next_q_values
+
+        loss = self.loss_function(current_q_values, expected_q_values.unsqueeze(1))
+
+        self.optimizer.zero_grad()
+        loss.backward()
+        self.optimizer.step()
+
+    def train(self, episode=300):
+        for i in range(episode):
+            state = self.env.start
+            while True:
+                action = self.select_action(state)
+                next_state = self.env.doAction(state, action)
+                reward = self.env.reward[state]
+                is_end = self.env.isTerminal(state)
+                self.memory.push(state, action, next_state, reward)
+
+                if i % 32 == 0:
+                    self.update()
+                state = next_state
+
+                if is_end:
+                    break
+
+    def get_result(self, start_state):
+        res = [start_state]
+        state = start_state
+
+        while True:
+            action = self.get_best_action(state)
+            next_state = self.env.doAction(state, action)
+
+            res.append(next_state)
+            state = next_state
+            if self.env.isTerminal(state):
+                break
+
+        return res

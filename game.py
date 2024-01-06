@@ -20,6 +20,8 @@ class Game:
         self.greedy_agent4 = GreedyQlearning(self.env, epsilon=0.3)
         self.greedy_agent5 = GreedyQlearning(self.env, epsilon=0.1)
 
+        self.dqn_agent = DQNAgent(self.env)
+
         self.start_position = start_position
         self.width = self.env.width
         self.height = self.env.height
@@ -29,16 +31,20 @@ class Game:
         self.dp_agent2.train()
         self.dp_agent3.train()
 
-        self.greedy_agent1.train()
-        self.greedy_agent2.train()
-        self.greedy_agent3.train()
-        self.greedy_agent4.train()
-        self.greedy_agent5.train()
+        # self.greedy_agent1.train()
+        # self.greedy_agent2.train()
+        # self.greedy_agent3.train()
+        # self.greedy_agent4.train()
+        # self.greedy_agent5.train()
+
+        self.dqn_agent.train()
+        result = self.dqn_agent.get_result(start_state=self.start_position)
+        print(result)
         # result = self.agent.get_result(self.env.axisToState(self.start_position))
         res = self.dp_agent1.get_result(self.env.axisToState(self.start_position))
         policy = self.dp_agent1.get_policy()
         # policy = self.agent.get_policy()
-        self.draw()
+        # self.draw()
         return res, policy
 
     def draw(self):
