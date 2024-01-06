@@ -11,21 +11,17 @@ class Action(Enum):
 
 
 class Environment:
-    # from 0 to width * height - 1
-    states = 0
-    # from 0 to 3, means left, top, right, down four directions
-    actions = []
-    # V value
-    reward = []
-    start = 0
-    end = 0
 
     def __init__(self, map, start_position, end_position):
         height, width = np.shape(map)
         self.width = width
         self.height = height
+        # from 0 to width * height - 1
         self.states = np.size(map)
+        # V value
         self.reward = []
+        # from 0 to 3, means left, top, right, down four directions
+        self.actions = []
         for rows in map:
             for item in rows:
                 self.reward.append(item)
