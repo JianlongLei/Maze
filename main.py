@@ -10,7 +10,7 @@ if __name__ == '__main__':
     # 4*4 normal maze
     # map, x_start, y_start, x_target, y_target = example_2()
     # 3*3 simple maze
-    # map, x_start, y_start, x_target, y_target = example_3()
+    # map, start_point, end_points = example_3()
     # 5*5 normal maze
     # map, x_start, y_start, x_target, y_target = example_4()
     # 5*5 simple maze
@@ -31,8 +31,8 @@ if __name__ == '__main__':
     # window.mainloop()
 
     # 60*60 big maze
-    # map, x_start, y_start, x_target, y_target = example_7()
-    # game = Game(map, (x_start, y_start), (x_target, y_target))
+    # map, start_point, end_points = example_7()
+    # game = Game(map, start_point, end_points)
     # window = Tk()
     # gameUI = GameUI(window, game, itemSize=10, speed=0.1, border=False)
     # gameUI.drawMap()

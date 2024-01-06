@@ -27,18 +27,20 @@ def example_2():
     ])
     x_start = 0
     y_start = 2
-    x_target = 0
-    y_target = 0
-    return map, x_start, y_start, x_target, y_target
+    start_point = (x_start, y_start)
+    indices = np.where(map > 0)
+    end_points = list(zip(indices[1], indices[0]))
+    return map, start_point, end_points
 
 
 def example_3():
     map = np.array([[0, 0, 1], [0, 0, 0], [0, 0, 0]])
     x_start = 0
     y_start = 2
-    x_target = 2
-    y_target = 0
-    return map, (x_start, y_start), (x_target, y_target)
+    start_point = (x_start, y_start)
+    indices = np.where(map > 0)
+    end_points = list(zip(indices[1], indices[0]))
+    return map, start_point, end_points
 
 
 def example_4():
@@ -49,9 +51,10 @@ def example_4():
                     [0, 0, 0, 0, 0]])
     x_start = 0
     y_start = 4
-    x_target = 4
-    y_target = 0
-    return map, x_start, y_start, x_target, y_target
+    start_point = (x_start, y_start)
+    indices = np.where(map > 0)
+    end_points = list(zip(indices[1], indices[0]))
+    return map, start_point, end_points
 
 
 def example_5():
@@ -93,10 +96,10 @@ def example_5():
 
     x_start = 0
     y_start = 0
-    x_target = 29
-    y_target = 29
-    return map, x_start, y_start, x_target, y_target
-
+    start_point = (x_start, y_start)
+    indices = np.where(map > 0)
+    end_points = list(zip(indices[1], indices[0]))
+    return map, start_point, end_points
 
 def example_6():
     map = np.array([
@@ -108,9 +111,10 @@ def example_6():
     ])
     x_start = 0
     y_start = 4
-    x_target = 4
-    y_target = 0
-    return map, (x_start, y_start), (x_target, y_target)
+    start_point = (x_start, y_start)
+    indices = np.where(map > 0)
+    end_points = list(zip(indices[1], indices[0]))
+    return map, start_point, end_points
 
 
 def example_7():
@@ -286,13 +290,13 @@ def example_7():
     ])
     map = -(-map + 1)
     map[59][59] = 1
-    print(np.shape(map))
 
     x_start = 0
     y_start = 0
-    x_target = 59
-    y_target = 59
-    return map, x_start, y_start, x_target, y_target
+    start_point = (x_start, y_start)
+    indices = np.where(map > 0)
+    end_points = list(zip(indices[1], indices[0]))
+    return map, start_point, end_points
 
 
 def example_8():
