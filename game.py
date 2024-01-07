@@ -34,17 +34,13 @@ class Game:
                 agent.train(150)
             result = self.dp_agents[0].get_result(self.env.start)
             policy = self.dp_agents[0].get_policy()
+            optimal_q_val1 = max(self.dp_agents[0].q_values[self.env.start])
+            optimal_q_val2 = max(self.greedy_agents[0].q_values[self.env.start])
+            print(optimal_q_val1, optimal_q_val2)
+            print(self.dp_agents[0].q_values)
+            print(self.greedy_agents[0].q_values)
 
         self.draw()
-
-        # print("result", result)
-        # result = self.agent.get_result(self.env.axisToState(self.start_position))
-
-        # print(self.dp_agents[0].q_values[self.env.legal_states])
-        # print(res)
-
-        # policy = self.agent.get_policy()
-
         return result, policy
 
     def draw(self):

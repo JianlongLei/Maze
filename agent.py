@@ -176,10 +176,11 @@ class ReplayMemory:
 
 
 class DQNAgent(Agent):
-    def __init__(self, environment: Environment, gamma=0.9, alpha=2e-3, epsilon=0.7, capacity=5000):
+    def __init__(self, environment: Environment, gamma=0.9, alpha=2e-3, epsilon=0.7, capacity=5000, batch_size=64):
         super().__init__(environment, gamma, alpha)
         self.epsilon = epsilon
         self.memory = ReplayMemory(capacity=capacity)
+        self.batch_size = batch_size
 
         self.q_network = DQNModel(self.env.states, len(Action))
         self.target_network = DQNModel(self.env.states, len(Action))
@@ -216,9 +217,9 @@ class DQNAgent(Agent):
             return self.get_best_action(state)[0]
 
     def update(self):
-        if len(self.memory) < 64:
+        if len(self.memory) < self.batch_size:
             return
-        transitions = self.memory.sample(64)
+        transitions = self.memory.sample(self.batch_size)
         batch = Transition(*zip(*transitions))
 
         state_batch = np.eye(self.env.states)[list(batch.state)]
@@ -291,7 +292,8 @@ class DQNAgent(Agent):
 
     def get_policy(self):
         with torch.no_grad():
-            one_hot_encoded = np.eye(self.env.states)[self.env.legal_states]
+            states = [x for x in range(self.env.states)]
+            one_hot_encoded = np.eye(self.env.states)[states]
             state_tensor = torch.tensor(one_hot_encoded).float()
             q_values = self.q_network(state_tensor)
             print(q_values)
