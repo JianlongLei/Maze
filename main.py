@@ -17,13 +17,13 @@ if __name__ == '__main__':
     # map, start_point, end_points = example_3()
     # games.append(Game(map, start_point, end_points))
 
-    # 3*3 simple maze
+    # 3*3 simple maze, Part I
     map, start_point, end_points = example_3()
     games.append(Game(map, start_point, end_points))
 
-    # 5*5 simple maze
+    # 5*5 simple maze, Part II
     map, start_point, end_points = example_8()
-    games.append(Game(map, start_point, end_points))
+    games.append(Game(map, start_point, end_points, dqn=True))
 
     window = Tk()
     gameUI = GameUI(window, games, itemSize=50, speed=0.2)

@@ -43,7 +43,7 @@ class Agent:
             results.append(x)
             xp = self.env.doAction(x, best_action)
             x = xp
-        print("res:", results)
+        # print("res:", results)
         return results
 
     def get_policy(self):
@@ -176,7 +176,7 @@ class ReplayMemory:
 
 
 class DQNAgent(Agent):
-    def __init__(self, environment: Environment, gamma=0.9, alpha=1e-3, epsilon=0.9, capacity=5000):
+    def __init__(self, environment: Environment, gamma=0.9, alpha=1e-3, epsilon=0.7, capacity=5000):
         super().__init__(environment, gamma, alpha)
         self.epsilon = epsilon
         self.memory = ReplayMemory(capacity=capacity)
@@ -199,19 +199,21 @@ class DQNAgent(Agent):
             q_values = self.q_network(state_tensor)
 
         max_q_value = torch.max(q_values[legal_action])
-        a_value = torch.where(q_values == max_q_value)[0]
+        max_indices = torch.where(q_values == max_q_value)[0]
 
-        if len(a_value) > 1:
-            a_value = a_value[0]
-        a_value = a_value.item()
+        actions = []
+        for index in max_indices:
+            action = Action(index.item())
+            actions.append(action)
 
-        return Action(a_value)
+        return actions
 
     def select_action(self, state):
         if np.random.rand() <= self.epsilon:
             return np.random.choice(self.env.actionList(state))
         else:
-            return self.get_best_action(state)
+            # randomly choose if there are multiple maximum value
+            return self.get_best_action(state)[0]
 
     def update(self):
         if len(self.memory) < 64:
@@ -271,17 +273,12 @@ class DQNAgent(Agent):
             self.records.append(max_q)
 
     def get_result(self, start_state):
-        with torch.no_grad():
-            one_hot_encoded = np.eye(self.env.states)[self.env.legal_states]
-            state_tensor = torch.tensor(one_hot_encoded).float()
-            q_values = self.q_network(state_tensor)
-            print(q_values)
-
         res = [start_state]
         state = start_state
         step = 0
         while True:
-            action = self.get_best_action(state)
+            # randomly choose if there are multiple maximum value
+            action = self.get_best_action(state)[0]
             next_state = self.env.doAction(state, action)
             state = next_state
             step += 1
@@ -291,6 +288,18 @@ class DQNAgent(Agent):
             res.append(state)
 
         return res
+
+    def get_policy(self):
+        policy = []
+        with torch.no_grad():
+            one_hot_encoded = np.eye(self.env.states)[self.env.legal_states]
+            state_tensor = torch.tensor(one_hot_encoded).float()
+            q_values = self.q_network(state_tensor)
+            # print(q_values)
+        for state in range(self.env.states):
+            actions = self.get_best_action(state)
+            policy.append(actions)
+        return policy
 
     def update_target(self):
         self.target_network.load_state_dict(self.q_network.state_dict())
