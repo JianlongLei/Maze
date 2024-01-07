@@ -198,8 +198,13 @@ class DQNAgent(Agent):
             state_tensor = torch.tensor(one_hot_encoded, dtype=torch.float32)
             q_values = self.q_network(state_tensor)
 
-        max_q_value = torch.max(q_values[legal_action]).detach()
-        a_value = torch.where(q_values == max_q_value)[0].item()
+        max_q_value = torch.max(q_values[legal_action])
+        a_value = torch.where(q_values == max_q_value)[0]
+
+        if len(a_value) > 1:
+            a_value = a_value[0]
+        a_value = a_value.item()
+
         return Action(a_value)
 
     def select_action(self, state):

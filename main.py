@@ -14,15 +14,15 @@ if __name__ == '__main__':
 
     games = []
     # 8*8 normal maze
-    map, start_point, end_points = example_8()
-    games.append(Game(map, start_point, end_points))
+    # map, start_point, end_points = example_3()
+    # games.append(Game(map, start_point, end_points))
 
     # 3*3 simple maze
     map, start_point, end_points = example_3()
     games.append(Game(map, start_point, end_points))
 
     # 5*5 simple maze
-    map, start_point, end_points = example_6()
+    map, start_point, end_points = example_8()
     games.append(Game(map, start_point, end_points))
 
     window = Tk()
