@@ -52,11 +52,20 @@ class Game:
             plt.figure()
             dqn_records = self.dqn_agent.records
             plt.plot(dqn_records)
+            plt.xlabel('Episode')
+            plt.ylabel('Cumulative Reward')
+            plt.show()
+
+            plt.figure()
+            plt.plot(self.dqn_agent.loss_list)
+            plt.xlabel('Updates')
+            plt.ylabel('Loss')
             plt.show()
         else:
             dp_records = [agent.records for agent in self.dp_agents]
             greedy_records = [agent.records for agent in self.greedy_agents]
 
+            plt.figure()
             for i, dp_record in enumerate(dp_records):
                 dp_label = f"α={alpha_list[i]}"
                 plt.plot(dp_record, label=dp_label)

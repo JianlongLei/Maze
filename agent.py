@@ -176,7 +176,7 @@ class ReplayMemory:
 
 
 class DQNAgent(Agent):
-    def __init__(self, environment: Environment, gamma=0.9, alpha=1e-3, epsilon=0.7, capacity=5000):
+    def __init__(self, environment: Environment, gamma=0.9, alpha=2e-3, epsilon=0.7, capacity=5000):
         super().__init__(environment, gamma, alpha)
         self.epsilon = epsilon
         self.memory = ReplayMemory(capacity=capacity)
@@ -290,12 +290,13 @@ class DQNAgent(Agent):
         return res
 
     def get_policy(self):
-        policy = []
         with torch.no_grad():
             one_hot_encoded = np.eye(self.env.states)[self.env.legal_states]
             state_tensor = torch.tensor(one_hot_encoded).float()
             q_values = self.q_network(state_tensor)
-            # print(q_values)
+            print(q_values)
+
+        policy = []
         for state in range(self.env.states):
             actions = self.get_best_action(state)
             policy.append(actions)
